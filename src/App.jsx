@@ -3,6 +3,8 @@ import TitleBar from './components/TitleBar'
 import NotebookSidebar from './components/NotebookSidebar'
 import PageSidebar from './components/PageSidebar'
 import Editor from './components/Editor'
+import ConfirmModal from './components/ConfirmModal'
+import Settings from './components/Settings'
 import styles from './styles/App.module.css'
 
 export default function App() {
@@ -11,7 +13,32 @@ export default function App() {
   const [activeNotebook, setActiveNotebook] = useState(null)
   const [activePage, setActivePage]         = useState(null)
   const [loading, setLoading]               = useState(true)
+  const [confirmState, setConfirmState]     = useState(null) // { title, message, confirmLabel, onConfirm }
+  const [settingsOpen, setSettingsOpen]     = useState(false)
   const autoSaveTimer                       = useRef(null)
+
+  // ── Apply saved settings on startup ────────────────────────────────────────
+  useEffect(() => {
+    Promise.all([
+      window.api.storeGet('theme'),
+      window.api.storeGet('editorFontSize'),
+    ]).then(([theme, fontSize]) => {
+      if (theme && theme !== 'system') {
+        document.documentElement.setAttribute('data-theme', theme)
+      }
+      if (fontSize) {
+        const sizes = { small: '13px', medium: '15px', large: '17px' }
+        document.documentElement.style.setProperty('--editor-font-size', sizes[fontSize] || '15px')
+      }
+    })
+  }, [])
+
+  // ── Helper: show confirm modal ──────────────────────────────────────────────
+  const showConfirm = useCallback((title, message, confirmLabel, onConfirm) => {
+    setConfirmState({ title, message, confirmLabel, onConfirm })
+  }, [])
+
+  const closeConfirm = useCallback(() => setConfirmState(null), [])
 
   // ── Load notebooks ──────────────────────────────────────────────────────────
   const loadNotebooks = useCallback(async (keepNotebookPath, keepPagePath) => {
@@ -21,14 +48,12 @@ export default function App() {
     setNotebooks(result.notebooks)
     setRootDir(result.rootDir)
 
-    // Try to restore active notebook
     const nb = keepNotebookPath
       ? result.notebooks.find(n => n.path === keepNotebookPath)
       : (result.notebooks[0] || null)
 
     if (nb) {
       setActiveNotebook(nb)
-      // Try to restore active page
       const allPages = nb.sections.flatMap(s => s.pages)
       const page = keepPagePath
         ? allPages.find(p => p.path === keepPagePath)
@@ -46,19 +71,16 @@ export default function App() {
 
   // ── Menu event listeners ────────────────────────────────────────────────────
   useEffect(() => {
-    const handleSave = () => activePage && savePage(activePage)
-    const handleNewPage = () => handleCreatePage()
-    const handleOpenFolder = async () => {
-      await window.api.chooseFolder()
-      loadNotebooks()
-    }
+    const handleSave       = () => activePage && savePage(activePage)
+    const handleNewPage    = () => handleCreatePage()
+    const handleOpenFolder = async () => { await window.api.chooseFolder(); loadNotebooks() }
 
-    window.api.onMenu('save', handleSave)
-    window.api.onMenu('new-page', handleNewPage)
+    window.api.onMenu('save',        handleSave)
+    window.api.onMenu('new-page',    handleNewPage)
     window.api.onMenu('open-folder', handleOpenFolder)
     return () => {
-      window.api.offMenu('save', handleSave)
-      window.api.offMenu('new-page', handleNewPage)
+      window.api.offMenu('save',        handleSave)
+      window.api.offMenu('new-page',    handleNewPage)
       window.api.offMenu('open-folder', handleOpenFolder)
     }
   }, [activePage])
@@ -86,15 +108,10 @@ export default function App() {
   // ── Create ──────────────────────────────────────────────────────────────────
   const handleCreatePage = async (sectionPath, name = 'Untitled Page') => {
     if (!activeNotebook) return
-    const sec = sectionPath
-      ? { path: sectionPath }
-      : activeNotebook.sections[0]
+    const sec = sectionPath ? { path: sectionPath } : activeNotebook.sections[0]
     if (!sec) return
-
     const result = await window.api.createPage({ sectionPath: sec.path, title: name })
-    if (result) {
-      await loadNotebooks(activeNotebook.path, result.filePath)
-    }
+    if (result) await loadNotebooks(activeNotebook.path, result.filePath)
   }
 
   const handleCreateNotebook = async (name = 'New Notebook') => {
@@ -133,7 +150,6 @@ export default function App() {
     await loadNotebooks(activeNotebook?.path, activePage?.path === page.path ? newPath : activePage?.path)
   }
 
-  // ── Title input rename (from Editor) ────────────────────────────────────────
   const handleTitleChange = async (page, newTitle) => {
     const dir = page.path.replace(/[^/\\]+$/, '')
     const newFilename = newTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.md'
@@ -144,32 +160,56 @@ export default function App() {
     await loadNotebooks(activeNotebook?.path, newPath)
   }
 
-  // ── Delete ──────────────────────────────────────────────────────────────────
-  const handleDeleteNotebook = async (nb) => {
-    if (!window.confirm(`Delete notebook "${nb.name}" and all its contents? This cannot be undone.`)) return
-    await window.api.deleteNotebook({ notebookPath: nb.path })
-    const isActive = activeNotebook?.path === nb.path
-    await loadNotebooks(isActive ? null : activeNotebook?.path, isActive ? null : activePage?.path)
+  // ── Delete (with custom confirm modal) ─────────────────────────────────────
+  const handleDeleteNotebook = (nb) => {
+    showConfirm(
+      `Delete "${nb.name}"?`,
+      `This will permanently delete the notebook and all its sections and pages. This action cannot be undone.`,
+      'Delete notebook',
+      async () => {
+        closeConfirm()
+        await window.api.deleteNotebook({ notebookPath: nb.path })
+        const isActive = activeNotebook?.path === nb.path
+        await loadNotebooks(isActive ? null : activeNotebook?.path, isActive ? null : activePage?.path)
+      }
+    )
   }
 
-  const handleDeleteSection = async (sec) => {
-    if (!window.confirm(`Delete section "${sec.name}" and all its pages? This cannot be undone.`)) return
-    await window.api.deleteSection({ sectionPath: sec.path })
-    // If active page was in this section, clear it
-    const wasActive = activePage?.path?.startsWith(sec.path)
-    await loadNotebooks(activeNotebook?.path, wasActive ? null : activePage?.path)
+  const handleDeleteSection = (sec) => {
+    showConfirm(
+      `Delete "${sec.name}"?`,
+      `This will permanently delete the section and all its pages. This action cannot be undone.`,
+      'Delete section',
+      async () => {
+        closeConfirm()
+        await window.api.deleteSection({ sectionPath: sec.path })
+        const wasActive = activePage?.path?.startsWith(sec.path)
+        await loadNotebooks(activeNotebook?.path, wasActive ? null : activePage?.path)
+      }
+    )
   }
 
-  const handleDeletePage = async (page) => {
-    if (!window.confirm(`Delete "${page.title}"? This cannot be undone.`)) return
-    await window.api.deletePage({ filePath: page.path })
-    const wasActive = activePage?.path === page.path
-    await loadNotebooks(activeNotebook?.path, wasActive ? null : activePage?.path)
+  const handleDeletePage = (page) => {
+    showConfirm(
+      `Delete "${page.title}"?`,
+      `This will permanently delete this page from your disk. This action cannot be undone.`,
+      'Delete page',
+      async () => {
+        closeConfirm()
+        await window.api.deletePage({ filePath: page.path })
+        const wasActive = activePage?.path === page.path
+        await loadNotebooks(activeNotebook?.path, wasActive ? null : activePage?.path)
+      }
+    )
   }
 
-  // ── Loading ─────────────────────────────────────────────────────────────────
+  // ── Loading screen ──────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', background: 'var(--bg-primary)', flexDirection: 'column', gap: '12px' }}>
+    <div style={{
+      height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'var(--text-muted)', background: 'var(--bg-primary)',
+      flexDirection: 'column', gap: '12px',
+    }}>
       <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.03em' }}>Folio</div>
       <div style={{ fontSize: '13px' }}>Loading your notebooks…</div>
     </div>
@@ -177,7 +217,11 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <TitleBar title={activePage?.title || 'Folio'} rootDir={rootDir} />
+      <TitleBar
+        title={activePage?.title || 'Folio'}
+        rootDir={rootDir}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
       <div className={styles.body}>
         <NotebookSidebar
           notebooks={notebooks}
@@ -208,6 +252,26 @@ export default function App() {
           onTitleChange={handleTitleChange}
         />
       </div>
+
+      {/* Custom confirm modal */}
+      {confirmState && (
+        <ConfirmModal
+          title={confirmState.title}
+          message={confirmState.message}
+          confirmLabel={confirmState.confirmLabel}
+          onConfirm={confirmState.onConfirm}
+          onCancel={closeConfirm}
+        />
+      )}
+
+      {/* Settings */}
+      {settingsOpen && (
+        <Settings
+          rootDir={rootDir}
+          onClose={() => setSettingsOpen(false)}
+          onFolderChange={loadNotebooks}
+        />
+      )}
     </div>
   )
 }

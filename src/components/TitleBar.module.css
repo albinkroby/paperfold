@@ -24,9 +24,7 @@
   letter-spacing: -0.02em;
 }
 
-.folioMark {
-  color: var(--accent);
-}
+.folioMark { color: var(--accent); }
 
 .rootDir {
   font-size: 11px;
@@ -54,8 +52,37 @@
   align-items: center;
   -webkit-app-region: no-drag;
   padding-right: 4px;
+  gap: 2px;
 }
 
+.sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border-strong);
+  margin: 0 4px;
+  opacity: 0.5;
+}
+
+/* Settings gear button */
+.settingsBtn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s, color 0.12s, transform 0.3s;
+}
+.settingsBtn:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+  transform: rotate(45deg);
+}
+
+/* Window control buttons */
 .btn {
   width: 36px;
   height: 38px;
@@ -67,6 +94,5 @@
   color: var(--text-muted);
   transition: background 0.12s, color 0.12s;
 }
-
 .btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .close:hover { background: #e81123; color: white; }

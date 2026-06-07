@@ -1,7 +1,7 @@
-import { Minus, Square, X } from 'lucide-react'
+import { Minus, Square, X, Settings } from 'lucide-react'
 import styles from './TitleBar.module.css'
 
-export default function TitleBar({ title, rootDir }) {
+export default function TitleBar({ title, rootDir, onOpenSettings }) {
   return (
     <div className={styles.titlebar}>
       <div className={styles.drag}>
@@ -10,8 +10,18 @@ export default function TitleBar({ title, rootDir }) {
         </span>
         {rootDir && <span className={styles.rootDir}>{rootDir}</span>}
       </div>
+
       <div className={styles.pageTitle}>{title}</div>
+
       <div className={styles.controls}>
+        <button
+          className={styles.settingsBtn}
+          onClick={onOpenSettings}
+          title="Settings"
+        >
+          <Settings size={14} />
+        </button>
+        <div className={styles.sep} />
         <button className={styles.btn} onClick={() => window.api.minimize()} title="Minimize">
           <Minus size={12} />
         </button>

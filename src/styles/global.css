@@ -34,35 +34,62 @@
 
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.08);
 
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+
+  --editor-font-size: 15px;
 }
 
-/* Dark mode */
+/* ── Theme: system default (light) ── */
+/* ── Theme: manual dark override ──── */
+:root[data-theme="dark"],
+:root[data-theme="dark"] * {
+  color-scheme: dark;
+}
+:root[data-theme="dark"] {
+  --bg-primary:    #18181b;
+  --bg-secondary:  #1f1f23;
+  --bg-tertiary:   #27272a;
+  --bg-active:     #1e1b4b;
+  --bg-hover:      #2d2d32;
+  --text-primary:  #fafafa;
+  --text-secondary:#a1a1aa;
+  --text-muted:    #52525b;
+  --text-active:   #818cf8;
+  --border:        rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.10);
+  --accent:        #818cf8;
+  --accent-hover:  #a5b4fc;
+  --accent-light:  #1e1b4b;
+  --accent-subtle: rgba(129, 140, 248, 0.10);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.30);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.40);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.60), 0 8px 24px rgba(0,0,0,0.40);
+}
+
+/* ── Theme: system dark (when no manual override) ── */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg-primary:    #18181b;
     --bg-secondary:  #1f1f23;
     --bg-tertiary:   #27272a;
     --bg-active:     #1e1b4b;
     --bg-hover:      #2d2d32;
-
     --text-primary:  #fafafa;
     --text-secondary:#a1a1aa;
     --text-muted:    #52525b;
     --text-active:   #818cf8;
-
     --border:        rgba(255,255,255,0.06);
     --border-strong: rgba(255,255,255,0.10);
-
     --accent:        #818cf8;
     --accent-hover:  #a5b4fc;
     --accent-light:  #1e1b4b;
     --accent-subtle: rgba(129, 140, 248, 0.10);
-
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.30);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.40);
+    --shadow-xl: 0 20px 60px rgba(0,0,0,0.60), 0 8px 24px rgba(0,0,0,0.40);
   }
 }
 
@@ -86,3 +113,18 @@ html, body, #root {
 
 button { cursor: pointer; font-family: var(--font-sans); }
 input, textarea { font-family: var(--font-sans); }
+
+/* ── Modal overlay shared base ─────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: backdropIn 0.15s ease;
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
