@@ -12,8 +12,37 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 14px;
+  padding: 0 10px;
   width: var(--sidebar1-width);
+  flex-shrink: 0;
+}
+
+.sidebarToggleBtn {
+  -webkit-app-region: no-drag;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s, color 0.12s, transform 0.15s ease;
+  cursor: pointer;
+}
+.sidebarToggleBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.sidebarToggleBtn:active {
+  transform: scale(0.95);
+}
+
+.logo {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -23,8 +52,6 @@
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
-
-.folioMark { color: var(--accent); }
 
 .rootDir {
   font-size: 11px;

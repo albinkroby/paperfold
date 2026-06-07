@@ -69,19 +69,20 @@ export default function Toolbar({ editor, mode, onSwitchMode, onSave, onMdInsert
       </div>
       <div className={styles.right}>
         <div className={styles.modeToggle}>
+          <div className={`${styles.slider} ${mode === 'visual' ? styles.sliderVisual : styles.sliderMarkdown}`} />
           <button
             className={`${styles.modeBtn} ${mode === 'visual' ? styles.modeBtnActive : ''}`}
             onClick={() => onSwitchMode('visual')}
-            title="Visual mode — click and type like Word"
+            title="Visual mode — WYSIWYG editor"
           >
-            <Eye size={13} /> Visual
+            <Eye size={14} />
           </button>
           <button
             className={`${styles.modeBtn} ${mode === 'markdown' ? styles.modeBtnActive : ''}`}
             onClick={() => onSwitchMode('markdown')}
-            title="Markdown mode — write raw .md syntax"
+            title="Markdown mode — Raw markdown text editor"
           >
-            <FileCode size={13} /> Markdown
+            <FileCode size={14} />
           </button>
         </div>
         <button className={styles.saveBtn} onClick={onSave} title="Save (Ctrl+S)">

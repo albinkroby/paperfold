@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { FileText, Plus, FolderPlus, MoreHorizontal, Folder } from 'lucide-react'
+import { FileText, Plus, FolderPlus, MoreHorizontal, Folder, PanelLeft, PanelLeftClose } from 'lucide-react'
 import styles from './PageSidebar.module.css'
 
 // ── Inline editable input (VS Code style) ────────────────────────────────────
@@ -66,6 +66,7 @@ function CtxMenu({ x, y, onRename, onDelete, onClose }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function PageSidebar({
+  sidebarOpen, onToggleSidebar,
   notebook, activePage,
   onSelectPage, onCreatePage, onCreateSection,
   onRenamePage, onDeletePage,
@@ -91,7 +92,16 @@ export default function PageSidebar({
     <div className={styles.sidebar}>
       {/* Header */}
       <div className={styles.header}>
-        <span className={styles.nbName}>{notebook.name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flex: 1 }}>
+          <button
+            className={styles.sidebarToggleBtn}
+            onClick={onToggleSidebar}
+            title={sidebarOpen ? "Hide Notebooks" : "Show Notebooks"}
+          >
+            {sidebarOpen ? <PanelLeftClose size={14} /> : <PanelLeft size={14} />}
+          </button>
+          <span className={styles.nbName}>{notebook.name}</span>
+        </div>
         <div className={styles.actions}>
           <button
             className={styles.iconBtn}

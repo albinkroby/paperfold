@@ -68,6 +68,7 @@ function CtxMenu({ x, y, onRename, onDelete, onClose }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function NotebookSidebar({
+  isOpen = true,
   notebooks, activeNotebook,
   onSelectNotebook, onCreateNotebook, onRenameNotebook, onDeleteNotebook,
 }) {
@@ -82,7 +83,7 @@ export default function NotebookSidebar({
   }
 
   return (
-    <div className={styles.sidebar}>
+    <div className={`${styles.sidebar} ${!isOpen ? styles.collapsed : ''}`}>
       <div className={styles.header}>
         <span>Notebooks</span>
         <button className={styles.addBtn} onClick={() => setEditing('new')} title="New notebook (VS Code style)">

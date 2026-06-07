@@ -5,10 +5,10 @@ export default function TitleBar({ title, rootDir, onOpenSettings }) {
   return (
     <div className={styles.titlebar}>
       <div className={styles.drag}>
+        <img src="/logo.png" className={styles.logo} alt="Folio Logo" />
         <span className={styles.appName}>
-          <span className={styles.folioMark}>F</span>olio
+          Folio
         </span>
-        {rootDir && <span className={styles.rootDir}>{rootDir}</span>}
       </div>
 
       <div className={styles.pageTitle}>{title}</div>

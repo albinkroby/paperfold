@@ -15,6 +15,7 @@ export default function App() {
   const [loading, setLoading]               = useState(true)
   const [confirmState, setConfirmState]     = useState(null) // { title, message, confirmLabel, onConfirm }
   const [settingsOpen, setSettingsOpen]     = useState(false)
+  const [sidebarOpen, setSidebarOpen]       = useState(true)
   const autoSaveTimer                       = useRef(null)
 
   // ── Apply saved settings on startup ────────────────────────────────────────
@@ -224,6 +225,7 @@ export default function App() {
       />
       <div className={styles.body}>
         <NotebookSidebar
+          isOpen={sidebarOpen}
           notebooks={notebooks}
           activeNotebook={activeNotebook}
           onSelectNotebook={(nb) => {
@@ -235,6 +237,8 @@ export default function App() {
           onDeleteNotebook={handleDeleteNotebook}
         />
         <PageSidebar
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen(prev => !prev)}
           notebook={activeNotebook}
           activePage={activePage}
           onSelectPage={handleSelectPage}
