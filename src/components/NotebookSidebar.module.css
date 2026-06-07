@@ -1,0 +1,169 @@
+.sidebar {
+  width: var(--sidebar1-width);
+  min-width: var(--sidebar1-width);
+  background: var(--bg-tertiary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  padding: 10px 12px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.addBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+}
+.addBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.list { flex: 1; overflow-y: auto; padding: 4px 6px 8px; }
+
+/* ── Row: the ENTIRE row (item + ⋯) gets the highlight ─── */
+.row {
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+  margin-bottom: 1px;
+  transition: background 0.13s;
+  position: relative;
+  /* ⋯ hidden by default, shown on hover/active */
+}
+.row:hover            { background: var(--bg-hover); }
+.row.rowActive        { background: var(--accent-light); }
+
+/* Show ⋯ on hover or when row is active */
+.row:hover .moreBtn,
+.row.rowActive .moreBtn { opacity: 1; }
+
+/* ── Item button: no background, just layout ──────────── */
+.item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 6px 7px 10px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: left;
+  min-width: 0;
+  transition: color 0.13s;
+}
+.row:hover .item   { color: var(--text-primary); }
+.row.rowActive .item { color: var(--accent); font-weight: 500; }
+
+.itemIcon { flex-shrink: 0; }
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ── ⋯ button: inside the row, always same bg ─────────── */
+.moreBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 0.13s, background 0.13s, color 0.13s;
+  flex-shrink: 0;
+  margin-right: 3px;
+}
+.moreBtn:hover {
+  background: rgba(0,0,0,0.08);
+  color: var(--text-primary);
+}
+.row.rowActive .moreBtn:hover {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+/* ── Inline input (VS Code-style) ─────────────────────── */
+.inlineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 4px 6px 4px 10px;
+  min-width: 0;
+}
+
+.inlineIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.inlineInput {
+  flex: 1;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  padding: 3px 7px;
+  outline: none;
+  min-width: 0;
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+/* ── Context menu ─────────────────────────────────────── */
+.ctxMenu {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  min-width: 130px;
+}
+
+.ctxItem {
+  width: 100%;
+  display: block;
+  padding: 7px 12px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ctxItem:hover { background: var(--bg-hover); }
+.ctxDanger { color: #ef4444; }
+.ctxDanger:hover { background: rgba(239,68,68,0.08); }

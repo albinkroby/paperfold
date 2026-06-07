@@ -1,0 +1,72 @@
+.titlebar {
+  height: var(--titlebar-height);
+  display: flex;
+  align-items: center;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+}
+
+.drag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  width: var(--sidebar1-width);
+  flex-shrink: 0;
+}
+
+.appName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.folioMark {
+  color: var(--accent);
+}
+
+.rootDir {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.pageTitle {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 12px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+  padding-right: 4px;
+}
+
+.btn {
+  width: 36px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  transition: background 0.12s, color 0.12s;
+}
+
+.btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.close:hover { background: #e81123; color: white; }

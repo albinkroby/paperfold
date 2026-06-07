@@ -1,0 +1,233 @@
+.editorArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+  min-width: 0;
+}
+
+.titleRow {
+  padding: 20px 0 0;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 40px;
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.titleInput {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  padding-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.titleInput::placeholder { color: var(--text-muted); }
+
+.contentWrap {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TipTap visual editor ─────────────────────────────────── */
+.tiptap {
+  flex: 1;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 40px 60px;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-primary);
+  user-select: text;
+  cursor: text;
+  box-sizing: border-box;
+}
+
+.tiptap :global(.ProseMirror) {
+  outline: none;
+  min-height: 400px;
+}
+
+.tiptap :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.tiptap :global(h1) { font-size: 26px; font-weight: 700; margin: 0 0 14px; letter-spacing: -0.025em; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.tiptap :global(h2) { font-size: 20px; font-weight: 600; margin: 24px 0 10px; letter-spacing: -0.015em; }
+.tiptap :global(h3) { font-size: 17px; font-weight: 600; margin: 18px 0 8px; }
+.tiptap :global(p)  { margin-bottom: 10px; }
+.tiptap :global(ul), .tiptap :global(ol) { padding-left: 24px; margin-bottom: 12px; }
+.tiptap :global(li) { margin-bottom: 4px; line-height: 1.7; }
+.tiptap :global(strong) { font-weight: 600; }
+.tiptap :global(em) { font-style: italic; }
+.tiptap :global(u)  { text-decoration: underline; }
+.tiptap :global(s)  { text-decoration: line-through; color: var(--text-muted); }
+.tiptap :global(a)  { color: var(--accent); text-decoration: underline; }
+.tiptap :global(hr) { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+.tiptap :global(blockquote) {
+  border-left: 3px solid var(--accent);
+  padding: 6px 16px;
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  background: var(--accent-subtle);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.tiptap :global(code) {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+}
+
+.tiptap :global(pre) {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.tiptap :global(pre code) {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+/* Task list */
+.tiptap :global(ul[data-type="taskList"]) { list-style: none; padding-left: 4px; }
+.tiptap :global(li[data-type="taskItem"]) { display: flex; gap: 8px; align-items: flex-start; }
+.tiptap :global(li[data-type="taskItem"] > label) { flex-shrink: 0; margin-top: 4px; }
+.tiptap :global(li[data-type="taskItem"][data-checked="true"] > div) { color: var(--text-muted); text-decoration: line-through; }
+
+/* Syntax highlight colors */
+.tiptap :global(.hljs-keyword)  { color: #7c3aed; }
+.tiptap :global(.hljs-string)   { color: #059669; }
+.tiptap :global(.hljs-comment)  { color: #6b7280; font-style: italic; }
+.tiptap :global(.hljs-number)   { color: #d97706; }
+.tiptap :global(.hljs-function) { color: #2563eb; }
+.tiptap :global(.hljs-built_in) { color: #dc2626; }
+.tiptap :global(.hljs-attr)     { color: #0891b2; }
+@media (prefers-color-scheme: dark) {
+  .tiptap :global(.hljs-keyword)  { color: #c084fc; }
+  .tiptap :global(.hljs-string)   { color: #34d399; }
+  .tiptap :global(.hljs-comment)  { color: #6b7280; }
+  .tiptap :global(.hljs-number)   { color: #fbbf24; }
+  .tiptap :global(.hljs-function) { color: #60a5fa; }
+  .tiptap :global(.hljs-built_in) { color: #f87171; }
+  .tiptap :global(.hljs-attr)     { color: #22d3ee; }
+}
+
+/* ── Raw Markdown textarea ───────────────────────────────── */
+.mdTextarea {
+  flex: 1;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 40px 60px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.85;
+  border: none;
+  outline: none;
+  resize: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  user-select: text;
+  box-sizing: border-box;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+}
+
+.emptyInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 280px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--border-strong);
+  margin-bottom: 4px;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.emptyDesc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.emptyHint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-top: 4px;
+}
+
+/* ── Status bar ──────────────────────────────────────────── */
+.statusbar {
+  height: var(--statusbar-height);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.statusPath {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

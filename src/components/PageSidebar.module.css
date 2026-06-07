@@ -1,0 +1,224 @@
+.sidebar {
+  width: var(--sidebar2-width);
+  min-width: var(--sidebar2-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  padding: 10px 12px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.nbName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions { display: flex; gap: 2px; }
+
+.iconBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  transition: background 0.13s, color 0.13s;
+}
+.iconBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.list { flex: 1; overflow-y: auto; padding: 4px 0 8px; }
+
+/* Empty states */
+.emptyNotebook {
+  padding: 20px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── Section row ─────────────────────────────────────── */
+.sectionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 4px 14px;
+  margin-top: 6px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.sectionActions {
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.13s;
+}
+.sectionRow:hover .sectionActions { opacity: 1; }
+
+.secAddBtn, .secMoreBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  transition: background 0.13s, color 0.13s;
+}
+.secAddBtn:hover, .secMoreBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* New section row */
+.newSectionRow {
+  padding: 4px 8px 4px 14px;
+  margin-top: 6px;
+}
+
+/* ── Page row: ENTIRE row gets the highlight ────────── */
+.pageRow {
+  display: flex;
+  align-items: stretch;
+  border-left: 2px solid transparent;
+  transition: background 0.13s, border-color 0.13s;
+}
+.pageRow:hover            { background: var(--bg-hover); }
+.pageRow.pageActive       { background: var(--accent-subtle); border-left-color: var(--accent); }
+
+/* Show ⋯ on hover or active */
+.pageRow:hover .moreBtn,
+.pageRow.pageActive .moreBtn { opacity: 1; }
+
+/* ── Page button: no background ─────────────────────── */
+.pageBtn {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 6px 7px 14px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+  transition: none;
+}
+
+.pageIcon { color: var(--text-muted); margin-top: 2px; flex-shrink: 0; }
+.pageInfo { display: flex; flex-direction: column; gap: 2px; overflow: hidden; min-width: 0; }
+.pageTitle { font-size: 13px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pageDate  { font-size: 11px; color: var(--text-muted); }
+.pageRow.pageActive .pageTitle { color: var(--accent); }
+.pageRow.pageActive .pageIcon  { color: var(--accent); opacity: 0.7; }
+
+/* ── ⋯ button inside page row ───────────────────────── */
+.moreBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.13s, background 0.13s, color 0.13s;
+  padding: 0 4px;
+}
+.moreBtn:hover {
+  background: rgba(0,0,0,0.07);
+  color: var(--text-primary);
+  opacity: 1 !important;
+}
+.pageRow.pageActive .moreBtn:hover {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.emptySection { padding: 5px 14px 8px 16px; font-size: 11px; color: var(--text-muted); font-style: italic; }
+
+/* ── Inline input ────────────────────────────────────── */
+.inlineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 4px 8px;
+  min-width: 0;
+}
+
+.inlineIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.inlineInput {
+  flex: 1;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  padding: 3px 7px;
+  outline: none;
+  min-width: 0;
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+/* ── Context menu ────────────────────────────────────── */
+.ctxMenu {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  min-width: 130px;
+}
+
+.ctxItem {
+  width: 100%;
+  display: block;
+  padding: 7px 12px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ctxItem:hover { background: var(--bg-hover); }
+.ctxDanger { color: #ef4444; }
+.ctxDanger:hover { background: rgba(239,68,68,0.08); }
