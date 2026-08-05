@@ -5,7 +5,7 @@ export default function TitleBar({ title, rootDir, onOpenSettings }) {
   return (
     <div className={styles.titlebar}>
       <div className={styles.drag}>
-        <img src="/logo.png" className={styles.logo} alt="Folio Logo" />
+        <img src="./logo.png" className={styles.logo} alt="Folio Logo" />
         <span className={styles.appName}>
           Folio
         </span>

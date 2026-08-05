@@ -1,6 +1,7 @@
 {
   "name": "folio",
   "version": "1.0.0",
+  "author": "Mrwhog",
   "description": "A Markdown-native notebook app with OneNote-style UX",
   "main": "electron/main.js",
   "scripts": {
@@ -43,9 +44,23 @@
       "target": "nsis",
       "icon": "public/icon.ico"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/electron-store/**/*",
+      "node_modules/conf/**/*",
+      "node_modules/env-paths/**/*",
+      "node_modules/atomically/**/*"
     ],
     "directories": {
       "output": "release"

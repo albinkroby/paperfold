@@ -3,10 +3,64 @@ const path = require('path')
 const fs = require('fs')
 const Store = require('electron-store')
 
+// Fix STATUS_BREAKPOINT (0x80000003) renderer crash in packaged/installed builds.
+// These flags must be set BEFORE app is ready.
+app.disableHardwareAcceleration()
+app.commandLine.appendSwitch('disable-gpu')
+app.commandLine.appendSwitch('disable-gpu-sandbox')
+app.commandLine.appendSwitch('disable-software-rasterizer')
+app.commandLine.appendSwitch('no-sandbox')
+
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 
+// ── Logging System ──────────────────────────────────────────────────────────
+let logFile = null
+function getLogFile() {
+  if (!logFile) {
+    try {
+      const dir = app.getPath('userData')
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+      logFile = path.join(dir, 'folio.log')
+    } catch (e) {
+      logFile = path.join(app.getPath('temp'), 'folio-fallback.log')
+    }
+  }
+  return logFile
+}
+
+function writeLog(level, message) {
+  try {
+    const file = getLogFile()
+    const time = new Date().toISOString()
+    const logMessage = `[${time}] [${level}] ${message}\n`
+    fs.appendFileSync(file, logMessage, 'utf-8')
+    console.log(logMessage.trim())
+  } catch (e) {
+    console.error('Failed to write log:', e)
+  }
+}
+
+// Catch crashes/uncaught errors and show a native dialog box
+process.on('uncaughtException', (error) => {
+  writeLog('CRITICAL', `Uncaught Exception: ${error.message}\nStack: ${error.stack}`)
+  try {
+    dialog.showErrorBox(
+      'Folio - Startup Error',
+      `An unexpected error occurred during startup:\n\n${error.message}\n\nLog file location:\n${getLogFile()}`
+    )
+  } catch (e) {}
+  process.exit(1)
+})
+
+process.on('unhandledRejection', (reason) => {
+  writeLog('CRITICAL', `Unhandled Rejection: ${reason}`)
+})
+
+writeLog('INFO', `App starting. isDev: ${isDev}, version: ${app.getVersion()}, platform: ${process.platform}`)
+
 function createWindow() {
+  writeLog('INFO', 'Creating window')
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -18,17 +72,32 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: false,
     },
-    icon: path.join(__dirname, '../public/icon.ico'),
+    // icon: path.join(__dirname, '../dist/icon.ico'),
     titleBarStyle: 'hidden',
   })
 
   if (isDev) {
+    writeLog('INFO', 'Loading dev server URL: http://localhost:5173')
     win.loadURL('http://localhost:5173')
-    // win.webContents.openDevTools()
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'))
+    const prodPath = path.join(__dirname, '../dist/index.html')
+    writeLog('INFO', `Loading production file: ${prodPath}`)
+    win.loadFile(prodPath)
   }
+
+  win.webContents.on('did-finish-load', () => {
+    writeLog('INFO', 'Page finished loading')
+  })
+
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    writeLog('ERROR', `Failed to load URL: ${validatedURL}. Code: ${errorCode}, Description: ${errorDescription}`)
+  })
+
+  win.webContents.on('render-process-gone', (event, details) => {
+    writeLog('CRITICAL', `Renderer process gone. Reason: ${details.reason}, Exit Code: ${details.exitCode}`)
+  })
 
   buildMenu(win)
   return win
@@ -213,6 +282,22 @@ ipcMain.on('window:maximize', () => {
 })
 ipcMain.on('window:close', () => BrowserWindow.getFocusedWindow()?.close())
 
-app.whenReady().then(createWindow)
-app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
-app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
+app.whenReady().then(() => {
+  writeLog('INFO', 'App is ready, creating window')
+  createWindow()
+})
+
+app.on('window-all-closed', () => {
+  writeLog('INFO', 'All windows closed')
+  if (process.platform !== 'darwin') {
+    writeLog('INFO', 'Quitting app')
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  writeLog('INFO', 'App activated')
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
+  }
+})
