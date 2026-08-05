@@ -3,7 +3,9 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('api', {
   // File system
   readNotebooks:   ()      => ipcRenderer.invoke('fs:read-notebooks'),
+  readPage:        (args)  => ipcRenderer.invoke('fs:read-page', args),
   savePage:        (args)  => ipcRenderer.invoke('fs:save-page', args),
+  exportMd:        (args)  => ipcRenderer.invoke('fs:export-md', args),
   createPage:      (args)  => ipcRenderer.invoke('fs:create-page', args),
   createSection:   (args)  => ipcRenderer.invoke('fs:create-section', args),
   createNotebook:  (args)  => ipcRenderer.invoke('fs:create-notebook', args),
@@ -16,6 +18,9 @@ contextBridge.exposeInMainWorld('api', {
   // Settings store
   storeGet:        (key)         => ipcRenderer.invoke('store:get', key),
   storeSet:        (key, value)  => ipcRenderer.invoke('store:set', key, value),
+
+  // App info
+  getVersion:      ()      => ipcRenderer.invoke('app:get-version'),
 
   // Window controls
   minimize:        () => ipcRenderer.send('window:minimize'),

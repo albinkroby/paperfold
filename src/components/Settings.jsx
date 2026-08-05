@@ -44,11 +44,12 @@ function Row({ label, description, children }) {
 }
 
 // ── Main Settings component ───────────────────────────────────────────────────
-export default function Settings({ onClose, rootDir, onFolderChange }) {
+export default function Settings({ onClose, rootDir, onFolderChange, onDefaultModeChange }) {
   const [theme,       setThemeState]       = useState('system')
   const [editorMode,  setEditorModeState]  = useState('visual')
   const [fontSize,    setFontSizeState]    = useState('medium')
   const [currentDir,  setCurrentDir]       = useState(rootDir)
+  const [appVersion,  setAppVersion]       = useState('')
 
   // Load saved settings on mount
   useEffect(() => {
@@ -56,10 +57,12 @@ export default function Settings({ onClose, rootDir, onFolderChange }) {
       window.api.storeGet('theme'),
       window.api.storeGet('editorDefaultMode'),
       window.api.storeGet('editorFontSize'),
-    ]).then(([t, m, f]) => {
+      window.api.getVersion(),
+    ]).then(([t, m, f, v]) => {
       if (t) setThemeState(t)
       if (m) setEditorModeState(m)
       if (f) setFontSizeState(f)
+      if (v) setAppVersion(v)
     })
   }, [])
 
@@ -77,6 +80,7 @@ export default function Settings({ onClose, rootDir, onFolderChange }) {
   const setEditorMode = (value) => {
     setEditorModeState(value)
     window.api.storeSet('editorDefaultMode', value)
+    onDefaultModeChange?.(value)
   }
 
   const setFontSize = (value) => {
@@ -120,7 +124,7 @@ export default function Settings({ onClose, rootDir, onFolderChange }) {
           <Section title="Appearance">
             <Row
               label="Theme"
-              description="Choose how Folio looks. System follows your OS setting."
+              description="Choose how Paperfold looks. System follows your OS setting."
             >
               <SegmentedControl
                 value={theme}
@@ -185,12 +189,15 @@ export default function Settings({ onClose, rootDir, onFolderChange }) {
           <Section title="About">
             <div className={styles.about}>
               <div className={styles.aboutLogo}>
-                <span className={styles.aboutMark}>F</span>olio
+                <span className={styles.aboutMark}>P</span>
               </div>
               <div className={styles.aboutInfo}>
-                <p className={styles.aboutVersion}>Version 1.0.0</p>
+                <div className={styles.aboutHeader}>
+                  <h4 className={styles.aboutAppName}>Paperfold</h4>
+                  <span className={styles.aboutVersion}>v{appVersion || '1.0.0'}</span>
+                </div>
                 <p className={styles.aboutDesc}>
-                  A Markdown-native notebook app. All notes save as <code>.md</code> files — open them in VS Code, Obsidian, or any editor.
+                  A Markdown-native notebook app. All notes save as <code>.md</code> files.
                 </p>
               </div>
             </div>

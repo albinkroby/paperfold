@@ -7,6 +7,13 @@ import ConfirmModal from './components/ConfirmModal'
 import Settings from './components/Settings'
 import styles from './styles/App.module.css'
 
+// Safe filename slug: if all chars are stripped (e.g. pure emoji/non-latin),
+// fall back to a timestamp so we never produce an empty ".md" filename.
+function toSlug(title) {
+  const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  return slug || `page-${Date.now()}`
+}
+
 export default function App() {
   const [notebooks, setNotebooks]           = useState([])
   const [rootDir, setRootDir]               = useState('')
@@ -16,14 +23,19 @@ export default function App() {
   const [confirmState, setConfirmState]     = useState(null) // { title, message, confirmLabel, onConfirm }
   const [settingsOpen, setSettingsOpen]     = useState(false)
   const [sidebarOpen, setSidebarOpen]       = useState(true)
+  const [defaultMode, setDefaultMode]       = useState('visual')
   const autoSaveTimer                       = useRef(null)
+  // Keep a ref to activePage so event handlers always see the latest value
+  const activePageRef                       = useRef(activePage)
+  useEffect(() => { activePageRef.current = activePage }, [activePage])
 
   // ── Apply saved settings on startup ────────────────────────────────────────
   useEffect(() => {
     Promise.all([
       window.api.storeGet('theme'),
       window.api.storeGet('editorFontSize'),
-    ]).then(([theme, fontSize]) => {
+      window.api.storeGet('editorDefaultMode'),
+    ]).then(([theme, fontSize, mode]) => {
       if (theme && theme !== 'system') {
         document.documentElement.setAttribute('data-theme', theme)
       }
@@ -31,6 +43,7 @@ export default function App() {
         const sizes = { small: '13px', medium: '15px', large: '17px' }
         document.documentElement.style.setProperty('--editor-font-size', sizes[fontSize] || '15px')
       }
+      if (mode) setDefaultMode(mode)
     })
   }, [])
 
@@ -41,7 +54,7 @@ export default function App() {
 
   const closeConfirm = useCallback(() => setConfirmState(null), [])
 
-  // ── Load notebooks ──────────────────────────────────────────────────────────
+  // ── Load notebooks (metadata only — no content) ─────────────────────────────
   const loadNotebooks = useCallback(async (keepNotebookPath, keepPagePath) => {
     const result = await window.api.readNotebooks()
     if (!result) { setLoading(false); return }
@@ -56,10 +69,17 @@ export default function App() {
     if (nb) {
       setActiveNotebook(nb)
       const allPages = nb.sections.flatMap(s => s.pages)
-      const page = keepPagePath
+      const pageMeta = keepPagePath
         ? allPages.find(p => p.path === keepPagePath)
         : (nb.sections[0]?.pages[0] || null)
-      setActivePage(page || null)
+
+      if (pageMeta) {
+        // Load content lazily for the initial page
+        const { content } = await window.api.readPage({ filePath: pageMeta.path })
+        setActivePage({ ...pageMeta, content })
+      } else {
+        setActivePage(null)
+      }
     } else {
       setActiveNotebook(null)
       setActivePage(null)
@@ -70,21 +90,40 @@ export default function App() {
 
   useEffect(() => { loadNotebooks() }, [loadNotebooks])
 
+  // ── Flush pending auto-save immediately ─────────────────────────────────────
+  const flushSave = useCallback(() => {
+    if (autoSaveTimer.current) {
+      clearTimeout(autoSaveTimer.current)
+      autoSaveTimer.current = null
+      const page = activePageRef.current
+      if (page?.path && page.content != null) {
+        window.api.savePage({ filePath: page.path, content: page.content })
+      }
+    }
+  }, [])
+
   // ── Menu event listeners ────────────────────────────────────────────────────
   useEffect(() => {
-    const handleSave       = () => activePage && savePage(activePage)
+    const handleSave       = () => activePageRef.current && savePage(activePageRef.current)
     const handleNewPage    = () => handleCreatePage()
     const handleOpenFolder = async () => { await window.api.chooseFolder(); loadNotebooks() }
+    const handleExportMd   = async () => {
+      const page = activePageRef.current
+      if (!page) return
+      await window.api.exportMd({ title: page.title, content: page.content || '' })
+    }
 
     window.api.onMenu('save',        handleSave)
     window.api.onMenu('new-page',    handleNewPage)
     window.api.onMenu('open-folder', handleOpenFolder)
+    window.api.onMenu('export-md',   handleExportMd)
     return () => {
       window.api.offMenu('save',        handleSave)
       window.api.offMenu('new-page',    handleNewPage)
       window.api.offMenu('open-folder', handleOpenFolder)
+      window.api.offMenu('export-md',   handleExportMd)
     }
-  }, [activePage])
+  }, []) // stable — uses ref for activePage
 
   // ── Save ────────────────────────────────────────────────────────────────────
   const savePage = useCallback(async (page) => {
@@ -101,10 +140,12 @@ export default function App() {
     })
   }, [savePage])
 
-  const handleSelectPage = useCallback((page) => {
-    if (activePage) savePage(activePage)
-    setActivePage(page)
-  }, [activePage, savePage])
+  // Flush save + load content lazily when switching pages
+  const handleSelectPage = useCallback(async (pageMeta) => {
+    flushSave()
+    const { content } = await window.api.readPage({ filePath: pageMeta.path })
+    setActivePage({ ...pageMeta, content })
+  }, [flushSave])
 
   // ── Create ──────────────────────────────────────────────────────────────────
   const handleCreatePage = async (sectionPath, name = 'Untitled Page') => {
@@ -143,18 +184,18 @@ export default function App() {
 
   const handleRenamePage = async (page, newName) => {
     if (!newName || newName.trim() === page.title) return
-    const dir = page.path.replace(/[^/\\]+$/, '')
-    const newFilename = newName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.md'
-    const newPath = dir + newFilename
+    const dir         = page.path.replace(/[^/\\]+$/, '')
+    const newFilename = toSlug(newName.trim()) + '.md'
+    const newPath     = dir + newFilename
     await window.api.savePage({ filePath: page.path, content: page.content || '' })
     await window.api.rename({ oldPath: page.path, newPath })
     await loadNotebooks(activeNotebook?.path, activePage?.path === page.path ? newPath : activePage?.path)
   }
 
   const handleTitleChange = async (page, newTitle) => {
-    const dir = page.path.replace(/[^/\\]+$/, '')
-    const newFilename = newTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.md'
-    const newPath = dir + newFilename
+    const dir         = page.path.replace(/[^/\\]+$/, '')
+    const newFilename = toSlug(newTitle) + '.md'
+    const newPath     = dir + newFilename
     if (newPath === page.path) return
     await window.api.savePage({ filePath: page.path, content: page.content || '' })
     await window.api.rename({ oldPath: page.path, newPath })
@@ -230,7 +271,9 @@ export default function App() {
           activeNotebook={activeNotebook}
           onSelectNotebook={(nb) => {
             setActiveNotebook(nb)
-            setActivePage(nb.sections[0]?.pages[0] || null)
+            const firstPage = nb.sections[0]?.pages[0] || null
+            if (firstPage) handleSelectPage(firstPage)
+            else setActivePage(null)
           }}
           onCreateNotebook={handleCreateNotebook}
           onRenameNotebook={handleRenameNotebook}
@@ -251,6 +294,7 @@ export default function App() {
         />
         <Editor
           page={activePage}
+          defaultMode={defaultMode}
           onContentChange={handleContentChange}
           onSave={savePage}
           onTitleChange={handleTitleChange}
@@ -274,6 +318,7 @@ export default function App() {
           rootDir={rootDir}
           onClose={() => setSettingsOpen(false)}
           onFolderChange={loadNotebooks}
+          onDefaultModeChange={setDefaultMode}
         />
       )}
     </div>

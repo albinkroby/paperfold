@@ -1,8 +1,8 @@
 {
-  "name": "folio",
+  "name": "paperfold",
   "version": "1.0.0",
   "author": "Mrwhog",
-  "description": "A Markdown-native notebook app with OneNote-style UX",
+  "description": "Paperfold — A local-first Markdown notebook application",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
@@ -38,8 +38,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.folio.app",
-    "productName": "Folio",
+    "appId": "com.paperfold.app",
+    "productName": "Paperfold",
     "win": {
       "target": "nsis",
       "icon": "public/icon.ico"

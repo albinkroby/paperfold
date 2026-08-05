@@ -1,4 +1,10 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --sidebar1-width: 200px;
@@ -8,33 +14,33 @@
   --statusbar-height: 26px;
 
   /* Light palette */
-  --bg-primary:    #ffffff;
-  --bg-secondary:  #f8f8f7;
-  --bg-tertiary:   #f0f0ee;
-  --bg-active:     #eef0fd;
-  --bg-hover:      #f0f0ed;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f7;
+  --bg-tertiary: #f0f0ee;
+  --bg-active: #eef0fd;
+  --bg-hover: #f0f0ed;
 
-  --text-primary:  #18181b;
-  --text-secondary:#52525b;
-  --text-muted:    #a1a1aa;
-  --text-active:   #4f46e5;
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --text-active: #4f46e5;
 
-  --border:        rgba(0,0,0,0.07);
-  --border-strong: rgba(0,0,0,0.13);
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.13);
 
   /* Indigo accent */
-  --accent:        #4f46e5;
-  --accent-hover:  #4338ca;
-  --accent-light:  #eef0fd;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-light: #eef0fd;
   --accent-subtle: rgba(79, 70, 229, 0.08);
 
   --radius-sm: 4px;
   --radius-md: 7px;
   --radius-lg: 12px;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
-  --shadow-xl: 0 20px 60px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
 
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
@@ -48,52 +54,55 @@
 :root[data-theme="dark"] * {
   color-scheme: dark;
 }
+
 :root[data-theme="dark"] {
-  --bg-primary:    #18181b;
-  --bg-secondary:  #1f1f23;
-  --bg-tertiary:   #27272a;
-  --bg-active:     #1e1b4b;
-  --bg-hover:      #2d2d32;
-  --text-primary:  #fafafa;
-  --text-secondary:#a1a1aa;
-  --text-muted:    #52525b;
-  --text-active:   #818cf8;
-  --border:        rgba(255,255,255,0.06);
-  --border-strong: rgba(255,255,255,0.10);
-  --accent:        #818cf8;
-  --accent-hover:  #a5b4fc;
-  --accent-light:  #1e1b4b;
+  --bg-primary: #18181b;
+  --bg-secondary: #1f1f23;
+  --bg-tertiary: #27272a;
+  --bg-active: #1e1b4b;
+  --bg-hover: #2d2d32;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --text-active: #818cf8;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.10);
+  --accent: #818cf8;
+  --accent-hover: #a5b4fc;
+  --accent-light: #1e1b4b;
   --accent-subtle: rgba(129, 140, 248, 0.10);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.30);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.40);
-  --shadow-xl: 0 20px 60px rgba(0,0,0,0.60), 0 8px 24px rgba(0,0,0,0.40);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.60), 0 8px 24px rgba(0, 0, 0, 0.40);
 }
 
 /* ── Theme: system dark (when no manual override) ── */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg-primary:    #18181b;
-    --bg-secondary:  #1f1f23;
-    --bg-tertiary:   #27272a;
-    --bg-active:     #1e1b4b;
-    --bg-hover:      #2d2d32;
-    --text-primary:  #fafafa;
-    --text-secondary:#a1a1aa;
-    --text-muted:    #52525b;
-    --text-active:   #818cf8;
-    --border:        rgba(255,255,255,0.06);
-    --border-strong: rgba(255,255,255,0.10);
-    --accent:        #818cf8;
-    --accent-hover:  #a5b4fc;
-    --accent-light:  #1e1b4b;
+    --bg-primary: #18181b;
+    --bg-secondary: #1f1f23;
+    --bg-tertiary: #27272a;
+    --bg-active: #1e1b4b;
+    --bg-hover: #2d2d32;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #52525b;
+    --text-active: #818cf8;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.10);
+    --accent: #818cf8;
+    --accent-hover: #a5b4fc;
+    --accent-light: #1e1b4b;
     --accent-subtle: rgba(129, 140, 248, 0.10);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.30);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.40);
-    --shadow-xl: 0 20px 60px rgba(0,0,0,0.60), 0 8px 24px rgba(0,0,0,0.40);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.60), 0 8px 24px rgba(0, 0, 0, 0.40);
   }
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   overflow: hidden;
   font-family: var(--font-sans);
@@ -102,17 +111,39 @@ html, body, #root {
   background: var(--bg-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  user-select: none;
+  /* user-select is intentionally NOT set here — editor content must be selectable.
+     Individual UI-chrome components (sidebar, toolbar, titlebar) apply
+     user-select: none in their own module CSS files. */
 }
 
 /* Scrollbars */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 
-button { cursor: pointer; font-family: var(--font-sans); }
-input, textarea { font-family: var(--font-sans); }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+input,
+textarea {
+  font-family: var(--font-sans);
+}
 
 /* ── Modal overlay shared base ─────────────────────── */
 .modal-backdrop {
@@ -124,7 +155,228 @@ input, textarea { font-family: var(--font-sans); }
   justify-content: center;
   animation: backdropIn 0.15s ease;
 }
+
 @keyframes backdropIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Task list — custom checkbox design ─────────────────────────────────────
+   Placed here (global) because TipTap creates task-item DOM nodes via
+   addNodeView() (JavaScript), not React JSX, so CSS-module scoped selectors
+   do not reliably reach those elements.                                      */
+
+/* ── Task list — custom checkbox design ─────────────────────────────────────
+   Global tasklist styles supporting TipTap (.ProseMirror), custom pages,
+   Markdown previews, and raw HTML task lists. */
+
+ul:has(input[type="checkbox"]),
+ul[data-type="taskList"],
+.task-list,
+ul.contains-task-list,
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding-left: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+li:has(input[type="checkbox"]),
+li[data-type="taskItem"],
+li[data-type="task-item"],
+.task-list-item,
+li.contains-task-list,
+.ProseMirror li[data-type="taskItem"] {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 6px !important;
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* Label = the click zone for TipTap node view */
+li:has(input[type="checkbox"]) > label,
+li[data-type="taskItem"] > label,
+.task-list-item > label,
+.ProseMirror li[data-type="taskItem"] > label {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: 3px !important;
+  cursor: pointer !important;
+}
+
+/* Hide native checkbox when inside TipTap wrapper label */
+li:has(input[type="checkbox"]) > label > input[type="checkbox"],
+li[data-type="taskItem"] > label > input[type="checkbox"],
+.task-list-item > label > input[type="checkbox"],
+.ProseMirror li[data-type="taskItem"] > label > input[type="checkbox"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  z-index: 1 !important;
+}
+
+/* The <span> is the visual custom checkbox box inside label */
+li:has(input[type="checkbox"]) > label > span,
+li[data-type="taskItem"] > label > span,
+.task-list-item > label > span,
+.ProseMirror li[data-type="taskItem"] > label > span {
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+  border: 2px solid var(--border-strong) !important;
+  border-radius: 5px !important;
+  background: var(--bg-primary) !important;
+  position: relative !important;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* Hover — accent ring */
+li:has(input[type="checkbox"]):hover > label > span,
+li[data-type="taskItem"]:hover > label > span,
+.task-list-item:hover > label > span,
+.ProseMirror li[data-type="taskItem"]:hover > label > span {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+/* Checked — solid accent fill */
+li:has(input[type="checkbox"])[data-checked="true"] > label > span,
+li[data-type="taskItem"][data-checked="true"] > label > span,
+.task-list-item[data-checked="true"] > label > span,
+.ProseMirror li[data-type="taskItem"][data-checked="true"] > label > span {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* Animated checkmark on the span */
+li:has(input[type="checkbox"]) > label > span::after,
+li[data-type="taskItem"] > label > span::after,
+.task-list-item > label > span::after,
+.ProseMirror li[data-type="taskItem"] > label > span::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 2px !important;
+  left: 5px !important;
+  width: 5px !important;
+  height: 9px !important;
+  border: 2.5px solid transparent !important;
+  border-top: none !important;
+  border-left: none !important;
+  transform: rotate(45deg) scale(0) !important;
+  opacity: 0 !important;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease !important;
+}
+
+/* Checked — pop the tick in */
+li:has(input[type="checkbox"])[data-checked="true"] > label > span::after,
+li[data-type="taskItem"][data-checked="true"] > label > span::after,
+.task-list-item[data-checked="true"] > label > span::after,
+.ProseMirror li[data-type="taskItem"][data-checked="true"] > label > span::after {
+  border-color: #fff !important;
+  transform: rotate(45deg) scale(1) !important;
+  opacity: 1 !important;
+}
+
+/* Standalone checkbox styling (when directly under li without label) */
+ul:has(input[type="checkbox"]) > li > input[type="checkbox"],
+ul[data-type="taskList"] > li > input[type="checkbox"],
+.task-list > li > input[type="checkbox"],
+ul.contains-task-list > li > input[type="checkbox"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: 3px !important;
+  flex-shrink: 0 !important;
+  border: 2px solid var(--border-strong) !important;
+  border-radius: 5px !important;
+  background: var(--bg-primary) !important;
+  cursor: pointer !important;
+  position: relative !important;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+ul:has(input[type="checkbox"]) > li > input[type="checkbox"]:hover,
+ul[data-type="taskList"] > li > input[type="checkbox"]:hover,
+.task-list > li > input[type="checkbox"]:hover,
+ul.contains-task-list > li > input[type="checkbox"]:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+ul:has(input[type="checkbox"]) > li > input[type="checkbox"]:checked,
+ul[data-type="taskList"] > li > input[type="checkbox"]:checked,
+.task-list > li > input[type="checkbox"]:checked,
+ul.contains-task-list > li > input[type="checkbox"]:checked {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 12px !important;
+}
+
+/* Content div or text container inside task items */
+li:has(input[type="checkbox"]) > div,
+li[data-type="taskItem"] > div,
+.task-list-item > div,
+.ProseMirror li[data-type="taskItem"] > div {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding-top: 1px !important;
+}
+
+/* Remove paragraph margin inside task item so there's no extra line below */
+li:has(input[type="checkbox"]) > div > p,
+li:has(input[type="checkbox"]) > p,
+li[data-type="taskItem"] > div > p,
+li[data-type="taskItem"] > p,
+.task-list-item > div > p,
+.task-list-item > p,
+.ProseMirror li[data-type="taskItem"] > div > p {
+  margin: 0 !important;
+}
+
+/* Checked text — muted + strikethrough */
+li:has(input[type="checkbox"])[data-checked="true"] > div,
+li:has(input[type="checkbox"])[data-checked="true"] > p,
+li[data-type="taskItem"][data-checked="true"] > div,
+li[data-type="taskItem"][data-checked="true"] > p,
+.task-list-item[data-checked="true"] > div,
+.task-list-item.checked,
+.ProseMirror li[data-type="taskItem"][data-checked="true"] > div {
+  color: var(--text-muted) !important;
+  text-decoration: line-through !important;
+  text-decoration-color: var(--text-muted) !important;
+}
+
+/* Nested task lists */
+ul:has(input[type="checkbox"]) ul:has(input[type="checkbox"]),
+ul[data-type="taskList"] ul[data-type="taskList"],
+.task-list .task-list,
+.ProseMirror li[data-type="taskItem"] > div > ul[data-type="taskList"] {
+  margin-top: 6px !important;
+  margin-bottom: 0 !important;
+  padding-left: 4px !important;
 }

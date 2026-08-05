@@ -76,6 +76,125 @@
 .tiptap :global(p)  { margin-bottom: 10px; }
 .tiptap :global(ul), .tiptap :global(ol) { padding-left: 24px; margin-bottom: 12px; }
 .tiptap :global(li) { margin-bottom: 4px; line-height: 1.7; }
+
+/* ── Task List & Task Item Overrides inside TipTap ─────────────────────── */
+.tiptap :global(ul:has(input[type="checkbox"])),
+.tiptap :global(ul[data-type="taskList"]) {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding-left: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"])),
+.tiptap :global(li[data-type="taskItem"]),
+.tiptap :global(li[data-type="task-item"]) {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 6px !important;
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]) > label),
+.tiptap :global(li[data-type="taskItem"] > label) {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: 3px !important;
+  cursor: pointer !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]) > label > input[type="checkbox"]),
+.tiptap :global(li[data-type="taskItem"] > label > input[type="checkbox"]) {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  z-index: 1 !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]) > label > span),
+.tiptap :global(li[data-type="taskItem"] > label > span) {
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+  border: 2px solid var(--border-strong) !important;
+  border-radius: 5px !important;
+  background: var(--bg-primary) !important;
+  position: relative !important;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]):hover > label > span),
+.tiptap :global(li[data-type="taskItem"]:hover > label > span) {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"])[data-checked="true"] > label > span),
+.tiptap :global(li[data-type="taskItem"][data-checked="true"] > label > span) {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]) > label > span::after),
+.tiptap :global(li[data-type="taskItem"] > label > span::after) {
+  content: '' !important;
+  position: absolute !important;
+  top: 2px !important;
+  left: 5px !important;
+  width: 5px !important;
+  height: 9px !important;
+  border: 2.5px solid transparent !important;
+  border-top: none !important;
+  border-left: none !important;
+  transform: rotate(45deg) scale(0) !important;
+  opacity: 0 !important;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.12s ease !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"])[data-checked="true"] > label > span::after),
+.tiptap :global(li[data-type="taskItem"][data-checked="true"] > label > span::after) {
+  border-color: #fff !important;
+  transform: rotate(45deg) scale(1) !important;
+  opacity: 1 !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]) > div),
+.tiptap :global(li[data-type="taskItem"] > div) {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding-top: 1px !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"]) > div > p),
+.tiptap :global(li:has(input[type="checkbox"]) > p),
+.tiptap :global(li[data-type="taskItem"] > div > p) {
+  margin: 0 !important;
+}
+
+.tiptap :global(li:has(input[type="checkbox"])[data-checked="true"] > div),
+.tiptap :global(li[data-type="taskItem"][data-checked="true"] > div) {
+  color: var(--text-muted) !important;
+  text-decoration: line-through !important;
+  text-decoration-color: var(--text-muted) !important;
+}
+
+
 .tiptap :global(strong) { font-weight: 600; }
 .tiptap :global(em) { font-style: italic; }
 .tiptap :global(u)  { text-decoration: underline; }
@@ -119,11 +238,6 @@
   color: var(--text-primary);
 }
 
-/* Task list */
-.tiptap :global(ul[data-type="taskList"]) { list-style: none; padding-left: 4px; }
-.tiptap :global(li[data-type="taskItem"]) { display: flex; gap: 8px; align-items: flex-start; }
-.tiptap :global(li[data-type="taskItem"] > label) { flex-shrink: 0; margin-top: 4px; }
-.tiptap :global(li[data-type="taskItem"][data-checked="true"] > div) { color: var(--text-muted); text-decoration: line-through; }
 
 /* Syntax highlight colors */
 .tiptap :global(.hljs-keyword)  { color: #7c3aed; }

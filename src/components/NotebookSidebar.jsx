@@ -78,8 +78,12 @@ export default function NotebookSidebar({
 
   const openMenu = (e, nb) => {
     e.stopPropagation()
-    const rect = e.currentTarget.getBoundingClientRect()
-    setMenu({ nb, x: rect.right + 4, y: rect.top })
+    const rect      = e.currentTarget.getBoundingClientRect()
+    const menuW     = 140  // approximate menu width
+    const menuH     = 72   // approximate menu height (2 items)
+    const x = Math.min(rect.right + 4, window.innerWidth  - menuW - 8)
+    const y = Math.min(rect.top,       window.innerHeight - menuH - 8)
+    setMenu({ nb, x, y })
   }
 
   return (

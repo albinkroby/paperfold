@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react'
+import { Extension } from '@tiptap/core'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
@@ -15,9 +17,17 @@ import bash from 'highlight.js/lib/languages/bash'
 import css from 'highlight.js/lib/languages/css'
 import { BookOpen, FilePlus } from 'lucide-react'
 import Toolbar from './Toolbar'
+import CodeBlockComponent from './CodeBlock'
 import TurndownService from 'turndown'
 import { marked } from 'marked'
 import styles from './Editor.module.css'
+
+// ── Custom CodeBlock with NodeView ───────────────────────────────────────────
+const CustomCodeBlock = CodeBlockLowlight.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(CodeBlockComponent)
+  },
+})
 
 // ── Setup lowlight ────────────────────────────────────────────────────────────
 const lowlight = createLowlight()
@@ -28,13 +38,46 @@ lowlight.register('dart', dart)
 lowlight.register('bash', bash)
 lowlight.register('css', css)
 
+// ── TrailingNode extension ────────────────────────────────────────────────────
+// Ensures there is always a paragraph after block nodes like code blocks.
+// Without this, clicking below a code block at the end of a page traps the
+// caret inside the code block (ProseMirror selects the nearest node).
+const TrailingNode = Extension.create({
+  name: 'trailingNode',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('trailingNode'),
+        appendTransaction(_, __, state) {
+          const { doc, tr, schema } = state
+          const lastNode = doc.lastChild
+          // Only insert a trailing paragraph when the last node is not already a paragraph
+          if (!lastNode || lastNode.type === schema.nodes.paragraph) return null
+          const paragraph = schema.nodes.paragraph.create()
+          return tr.insert(doc.content.size, paragraph)
+        },
+      }),
+    ]
+  },
+})
+
 // ── Turndown (HTML → Markdown) ────────────────────────────────────────────────
 const td = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced' })
+
+// Override the default ul rule to handle task lists separately
+td.addRule('taskList', {
+  filter: (node) => node.nodeName === 'UL' && node.getAttribute('data-type') === 'taskList',
+  replacement: (content) => content,
+})
+
 td.addRule('taskItem', {
-  filter: (node) => node.nodeName === 'LI' && node.getAttribute('data-checked') !== null,
+  filter: (node) => node.nodeName === 'LI' && node.getAttribute('data-type') === 'taskItem',
   replacement: (content, node) => {
     const checked = node.getAttribute('data-checked') === 'true'
-    return `- [${checked ? 'x' : ' '}] ${content.trim()}\n`
+    // content includes the converted label (input+span → empty) and div (text)
+    // Strip any blank lines and take only the actual text
+    const text = content.replace(/\n+/g, ' ').trim()
+    return `- [${checked ? 'x' : ' '}] ${text}\n`
   },
 })
 
@@ -52,13 +95,39 @@ function countWords(text) {
   return stripped ? stripped.split(/\s+/).filter(Boolean).length : 0
 }
 
-export default function Editor({ page, onContentChange, onSave, onTitleChange }) {
-  const [mode, setMode]           = useState('visual')
-  const [mdText, setMdText]       = useState('')
+// ── Markdown → TipTap-compatible HTML ────────────────────────────────────────
+// marked emits  <li><input type="checkbox" [checked]> text</li>  for GFM tasks.
+// TipTap's TaskItem parseHTML only matches  li[data-checked]  and TaskList only
+// matches  ul[data-type="taskList"].  We post-process the raw HTML to add those
+// attributes before handing it to editor.commands.setContent().
+function markdownToTiptapHtml(markdown) {
+  const rawHtml = marked.parse(markdown || '')
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(rawHtml, 'text/html')
+
+  doc.querySelectorAll('li > input[type="checkbox"]').forEach(input => {
+    const li = input.parentElement
+    const checked = input.checked || input.hasAttribute('checked')
+    li.setAttribute('data-type', 'taskItem')
+    li.setAttribute('data-checked', String(checked))
+    input.remove()           // TipTap re-creates the input via addNodeView
+
+    const ul = li.parentElement
+    if (ul && ul.tagName === 'UL') {
+      ul.setAttribute('data-type', 'taskList')
+    }
+  })
+
+  return doc.body.innerHTML
+}
+
+export default function Editor({ page, defaultMode = 'visual', onContentChange, onSave, onTitleChange }) {
+  const [mode, setMode] = useState(defaultMode)
+  const [mdText, setMdText] = useState('')
   const [pageTitle, setPageTitle] = useState('')
   const [wordCount, setWordCount] = useState(0)
-  const [saved, setSaved]         = useState(true)
-  const saveTimer                 = useRef(null)
+  const [saved, setSaved] = useState(true)
+  const saveTimer = useRef(null)
 
   // ── TipTap editor ───────────────────────────────────────────────────────────
   const editor = useEditor({
@@ -69,12 +138,13 @@ export default function Editor({ page, onContentChange, onSave, onTitleChange })
       Placeholder.configure({ placeholder: 'Start writing… (Visual mode — no Markdown needed)' }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      CodeBlockLowlight.configure({ lowlight }),
+      CustomCodeBlock.configure({ lowlight }),
+      TrailingNode,
     ],
     content: '',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
-      const md   = td.turndown(html)
+      const md = td.turndown(html)
       onContentChange(md)
       setWordCount(countWords(editor.getText()))
       setSaved(false)
@@ -90,7 +160,7 @@ export default function Editor({ page, onContentChange, onSave, onTitleChange })
     setMdText(page.content || '')
     setWordCount(countWords(page.content || ''))
     if (mode === 'visual' && editor) {
-      const html = marked.parse(page.content || '')
+      const html = markdownToTiptapHtml(page.content || '')
       editor.commands.setContent(html, false)
     }
   }, [page?.path])
@@ -102,7 +172,7 @@ export default function Editor({ page, onContentChange, onSave, onTitleChange })
       const html = editor?.getHTML() || ''
       setMdText(td.turndown(html))
     } else {
-      const html = marked.parse(mdText)
+      const html = markdownToTiptapHtml(mdText)
       editor?.commands.setContent(html, false)
     }
     setMode(newMode)

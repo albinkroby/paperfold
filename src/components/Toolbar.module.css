@@ -9,6 +9,7 @@
   flex-shrink: 0;
   gap: 4px;
   overflow-x: auto;
+  user-select: none;
 }
 
 .left { display: flex; align-items: center; gap: 1px; flex: 1; }

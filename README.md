@@ -1,6 +1,6 @@
-# Folio
+# Paperfold
 
-A Markdown-native notebook app with OneNote-style UX. All notes save as `.md` files on your disk — open them in VS Code, Obsidian, or any editor.
+A local-first, Markdown-native notebook app with OneNote-style UX. All notes save as `.md` files on your disk — open them in VS Code, Obsidian, or any editor.
 
 ## Features
 
@@ -11,8 +11,8 @@ A Markdown-native notebook app with OneNote-style UX. All notes save as `.md` fi
 - **Inline rename & delete** — right-click any notebook, section, or page
 - **Title editing** — edit the page title and the file is renamed on disk
 - Real `.md` files on disk — fully portable
-- Code blocks with syntax highlighting (JS, Python, Dart, Bash, CSS)
-- Task lists with checkboxes
+- Code blocks with custom language selector & clean text copy button
+- Task lists with custom checkboxes
 - Auto-save with 800ms debounce
 - Custom title bar with minimize/maximize/close
 - Dark mode support
@@ -27,7 +27,7 @@ A Markdown-native notebook app with OneNote-style UX. All notes save as `.md` fi
 ### Install & Run
 
 ```bash
-cd folio
+cd paperfold
 npm install
 npm run dev
 ```
@@ -45,7 +45,7 @@ Produces a `.exe` installer in the `release/` folder.
 ## File Structure
 
 ```
-folio/
+paperfold/
 ├── electron/
 │   ├── main.js          # Electron main process (window, IPC, file system)
 │   └── preload.js       # Secure bridge between Electron and React
@@ -69,7 +69,7 @@ folio/
 
 By default, notebooks are stored in:
 ```
-Documents/Folio/<NotebookName>/<SectionName>/<page-title>.md
+Documents/Paperfold/<NotebookName>/<SectionName>/<page-title>.md
 ```
 
 You can change the folder via **File → Open Notebook Folder…**
