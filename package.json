@@ -1,7 +1,8 @@
 {
   "name": "paperfold",
   "version": "1.0.0",
-  "author": "Mrwhog",
+  "author": "ALBIN K ROBY",
+  "license": "MIT",
   "description": "Paperfold — A local-first Markdown notebook application",
   "main": "electron/main.js",
   "scripts": {

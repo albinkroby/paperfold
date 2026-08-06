@@ -252,7 +252,7 @@ export default function App() {
       color: 'var(--text-muted)', background: 'var(--bg-primary)',
       flexDirection: 'column', gap: '12px',
     }}>
-      <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.03em' }}>Folio</div>
+      <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.03em' }}>Paperfold</div>
       <div style={{ fontSize: '13px' }}>Loading your notebooks…</div>
     </div>
   )
@@ -260,7 +260,7 @@ export default function App() {
   return (
     <div className={styles.app}>
       <TitleBar
-        title={activePage?.title || 'Folio'}
+        title={activePage?.title || 'Paperfold'}
         rootDir={rootDir}
         onOpenSettings={() => setSettingsOpen(true)}
       />
