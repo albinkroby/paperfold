@@ -4,6 +4,7 @@ import NotebookSidebar from './components/NotebookSidebar'
 import PageSidebar from './components/PageSidebar'
 import Editor from './components/Editor'
 import ConfirmModal from './components/ConfirmModal'
+import WelcomeModal from './components/WelcomeModal'
 import Settings from './components/Settings'
 import styles from './styles/App.module.css'
 
@@ -24,6 +25,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen]     = useState(false)
   const [sidebarOpen, setSidebarOpen]       = useState(true)
   const [defaultMode, setDefaultMode]       = useState('visual')
+  const [showWelcome, setShowWelcome]       = useState(false)
   const autoSaveTimer                       = useRef(null)
   // Keep a ref to activePage so event handlers always see the latest value
   const activePageRef                       = useRef(activePage)
@@ -35,7 +37,8 @@ export default function App() {
       window.api.storeGet('theme'),
       window.api.storeGet('editorFontSize'),
       window.api.storeGet('editorDefaultMode'),
-    ]).then(([theme, fontSize, mode]) => {
+      window.api.storeGet('welcomeShown'),
+    ]).then(([theme, fontSize, mode, welcomeShown]) => {
       if (theme && theme !== 'system') {
         document.documentElement.setAttribute('data-theme', theme)
       }
@@ -44,7 +47,15 @@ export default function App() {
         document.documentElement.style.setProperty('--editor-font-size', sizes[fontSize] || '15px')
       }
       if (mode) setDefaultMode(mode)
+      // Show welcome modal on very first launch
+      if (!welcomeShown) setShowWelcome(true)
     })
+  }, [])
+
+  const handleCloseWelcome = useCallback(() => {
+    setShowWelcome(false)
+    // Mark as shown so it never appears again
+    window.api.storeSet('welcomeShown', true)
   }, [])
 
   // ── Helper: show confirm modal ──────────────────────────────────────────────
@@ -170,16 +181,24 @@ export default function App() {
   const handleRenameNotebook = async (nb, newName) => {
     if (!newName || newName.trim() === nb.name) return
     const newPath = nb.path.replace(/[^/\\]+$/, newName.trim())
-    await window.api.rename({ oldPath: nb.path, newPath })
-    const isActive = activeNotebook?.path === nb.path
-    await loadNotebooks(isActive ? newPath : activeNotebook?.path, activePage?.path)
+    try {
+      await window.api.rename({ oldPath: nb.path, newPath })
+      const isActive = activeNotebook?.path === nb.path
+      await loadNotebooks(isActive ? newPath : activeNotebook?.path, activePage?.path)
+    } catch (e) {
+      showConfirm('Duplicate Name', `A notebook named "${newName.trim()}" already exists. Please choose a different name.`, 'OK', closeConfirm)
+    }
   }
 
   const handleRenameSection = async (sec, newName) => {
     if (!newName || newName.trim() === sec.name) return
     const newPath = sec.path.replace(/[^/\\]+$/, newName.trim())
-    await window.api.rename({ oldPath: sec.path, newPath })
-    await loadNotebooks(activeNotebook?.path, activePage?.path)
+    try {
+      await window.api.rename({ oldPath: sec.path, newPath })
+      await loadNotebooks(activeNotebook?.path, activePage?.path)
+    } catch (e) {
+      showConfirm('Duplicate Name', `A section named "${newName.trim()}" already exists in this notebook.`, 'OK', closeConfirm)
+    }
   }
 
   const handleRenamePage = async (page, newName) => {
@@ -187,9 +206,13 @@ export default function App() {
     const dir         = page.path.replace(/[^/\\]+$/, '')
     const newFilename = toSlug(newName.trim()) + '.md'
     const newPath     = dir + newFilename
-    await window.api.savePage({ filePath: page.path, content: page.content || '' })
-    await window.api.rename({ oldPath: page.path, newPath })
-    await loadNotebooks(activeNotebook?.path, activePage?.path === page.path ? newPath : activePage?.path)
+    try {
+      await window.api.savePage({ filePath: page.path, content: page.content || '' })
+      await window.api.rename({ oldPath: page.path, newPath })
+      await loadNotebooks(activeNotebook?.path, activePage?.path === page.path ? newPath : activePage?.path)
+    } catch (e) {
+      showConfirm('Duplicate Name', `A page named "${newName.trim()}" already exists in this section.`, 'OK', closeConfirm)
+    }
   }
 
   const handleTitleChange = async (page, newTitle) => {
@@ -197,9 +220,13 @@ export default function App() {
     const newFilename = toSlug(newTitle) + '.md'
     const newPath     = dir + newFilename
     if (newPath === page.path) return
-    await window.api.savePage({ filePath: page.path, content: page.content || '' })
-    await window.api.rename({ oldPath: page.path, newPath })
-    await loadNotebooks(activeNotebook?.path, newPath)
+    try {
+      await window.api.savePage({ filePath: page.path, content: page.content || '' })
+      await window.api.rename({ oldPath: page.path, newPath })
+      await loadNotebooks(activeNotebook?.path, newPath)
+    } catch (e) {
+      showConfirm('Duplicate Name', `A page named "${newTitle.trim()}" already exists in this section.`, 'OK', closeConfirm)
+    }
   }
 
   // ── Delete (with custom confirm modal) ─────────────────────────────────────
@@ -320,6 +347,11 @@ export default function App() {
           onFolderChange={loadNotebooks}
           onDefaultModeChange={setDefaultMode}
         />
+      )}
+
+      {/* Welcome modal — shown on very first launch */}
+      {showWelcome && (
+        <WelcomeModal onClose={handleCloseWelcome} />
       )}
     </div>
   )

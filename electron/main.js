@@ -199,8 +199,10 @@ ipcMain.handle('fs:read-notebooks', async () => {
 
   let notebooks = await scanNotebooks(rootDir)
 
-  // If empty, bootstrap a sample notebook then re-scan
-  if (notebooks.length === 0) {
+  // Bootstrap a sample notebook ONLY on very first app launch
+  const hasInitialized = store.get('hasInitialized', false)
+  if (!hasInitialized && notebooks.length === 0) {
+    store.set('hasInitialized', true)
     const sampleNb  = path.join(rootDir, 'My Notebook')
     const sampleSec = path.join(sampleNb, 'General')
     fs.mkdirSync(sampleSec, { recursive: true })
@@ -247,16 +249,31 @@ ipcMain.handle('fs:export-md', async (_, { title, content }) => {
 
 // Create new page
 ipcMain.handle('fs:create-page', async (_, { sectionPath, title }) => {
-  const filename = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.md'
-  const filePath = path.join(sectionPath, filename)
-  const content  = `# ${title}\n\n`
+  const baseSlug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || 'untitled'
+  let filename = baseSlug + '.md'
+  let filePath = path.join(sectionPath, filename)
+
+  // Handle duplicate filenames gracefully by appending (1), (2), etc.
+  let counter = 1
+  while (fs.existsSync(filePath)) {
+    filename = `${baseSlug}-${counter}.md`
+    filePath = path.join(sectionPath, filename)
+    counter++
+  }
+
+  const content = '' // Empty body to avoid duplicate H1 title in editor
   await fsp.writeFile(filePath, content, 'utf-8')
   return { filePath, filename, content }
 })
 
 // Create new section
 ipcMain.handle('fs:create-section', async (_, { notebookPath, name }) => {
-  const secPath = path.join(notebookPath, name)
+  let secPath = path.join(notebookPath, name)
+  let counter = 1
+  while (fs.existsSync(secPath)) {
+    secPath = path.join(notebookPath, `${name} (${counter})`)
+    counter++
+  }
   await fsp.mkdir(secPath, { recursive: true })
   return secPath
 })
@@ -264,7 +281,12 @@ ipcMain.handle('fs:create-section', async (_, { notebookPath, name }) => {
 // Create new notebook
 ipcMain.handle('fs:create-notebook', async (_, { name }) => {
   const rootDir = store.get('notebooksDir', path.join(app.getPath('documents'), 'Paperfold'))
-  const nbPath  = path.join(rootDir, name)
+  let nbPath = path.join(rootDir, name)
+  let counter = 1
+  while (fs.existsSync(nbPath)) {
+    nbPath = path.join(rootDir, `${name} (${counter})`)
+    counter++
+  }
   const secPath = path.join(nbPath, 'General')
   await fsp.mkdir(secPath, { recursive: true })
   return { nbPath, secPath }
@@ -272,6 +294,9 @@ ipcMain.handle('fs:create-notebook', async (_, { name }) => {
 
 // Rename a file/folder
 ipcMain.handle('fs:rename', async (_, { oldPath, newPath }) => {
+  if (oldPath !== newPath && fs.existsSync(newPath)) {
+    throw new Error('An item with that name already exists.')
+  }
   await fsp.rename(oldPath, newPath)
   return true
 })

@@ -1,6 +1,8 @@
 # Paperfold
 
-A local-first, Markdown-native notebook app with OneNote-style UX. All notes save as `.md` files on your disk — open them in VS Code, Obsidian, or any editor.
+A local-first, Markdown-native notebook app. All notes save as `.md` files on your disk.
+
+![Paperfold Demo Preview](./docs/demo.webp)
 
 ## Features
 
