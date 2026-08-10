@@ -47,6 +47,14 @@
       "target": "nsis",
       "icon": "public/icon.ico"
     },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility"
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
