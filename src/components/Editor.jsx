@@ -126,8 +126,9 @@ export default function Editor({ page, defaultMode = 'visual', onContentChange, 
   const [mdText, setMdText] = useState('')
   const [pageTitle, setPageTitle] = useState('')
   const [wordCount, setWordCount] = useState(0)
-  const [saved, setSaved] = useState(true)
-  const saveTimer = useRef(null)
+  const [saved, setSaved]           = useState(true)
+  const saveTimer      = useRef(null)
+  const mdTextareaRef  = useRef(null)
 
   // ── TipTap editor ───────────────────────────────────────────────────────────
   const editor = useEditor({
@@ -235,7 +236,7 @@ export default function Editor({ page, defaultMode = 'visual', onContentChange, 
         onSave={handleSaveNow}
         mdText={mdText}
         onMdInsert={(before, after) => {
-          const ta = document.getElementById('md-textarea')
+          const ta = mdTextareaRef.current
           if (!ta) return
           const s = ta.selectionStart, e = ta.selectionEnd
           const selected = ta.value.substring(s, e)
@@ -262,7 +263,7 @@ export default function Editor({ page, defaultMode = 'visual', onContentChange, 
           <EditorContent editor={editor} className={styles.tiptap} />
         ) : (
           <textarea
-            id="md-textarea"
+            ref={mdTextareaRef}
             className={styles.mdTextarea}
             value={mdText}
             onChange={handleMdChange}

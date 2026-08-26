@@ -11,3 +11,26 @@
   flex: 1;
   overflow: hidden;
 }
+
+/* ── Loading screen ── */
+.loading {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+}
+
+.loadingTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+}
+
+.loadingText {
+  font-size: 13px;
+}

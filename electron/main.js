@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const path = require('path')
-const fs = require('fs')
-const fsp = require('fs').promises
+const fs  = require('fs')
+const fsp = fs.promises
 const Store = require('electron-store')
 
 // ── GPU / crash workaround ───────────────────────────────────────────────────
@@ -10,7 +10,7 @@ const Store = require('electron-store')
 // compositing is active inside an Electron frameless window.
 // Disabling hardware acceleration is the stable workaround until the
 // underlying Chromium/driver issue is resolved.
-// Ref: https://github.com/electron/electron/issues/XXXXX
+// Search: github.com/electron/electron/issues?q=STATUS_BREAKPOINT+frameless
 // These flags MUST be set before app.whenReady().
 app.disableHardwareAcceleration()
 app.commandLine.appendSwitch('disable-gpu')

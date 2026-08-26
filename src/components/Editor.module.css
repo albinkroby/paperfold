@@ -218,6 +218,10 @@
   border: 1px solid var(--border);
   padding: 2px 5px;
   border-radius: var(--radius-sm);
+  /* Small gap so clicking just to the right of the mark resolves
+     to a position outside it, not inside. Without this, clicking
+     at the end of a line that ends with inline code snaps back in. */
+  margin-right: 2px;
 }
 
 .tiptap :global(pre) {

@@ -48,37 +48,13 @@
   --editor-font-size: 15px;
 }
 
-/* ── Theme: system default (light) ── */
-/* ── Theme: manual dark override ──── */
-:root[data-theme="dark"],
-:root[data-theme="dark"] * {
-  color-scheme: dark;
-}
-
-:root[data-theme="dark"] {
-  --bg-primary: #18181b;
-  --bg-secondary: #1f1f23;
-  --bg-tertiary: #27272a;
-  --bg-active: #1e1b4b;
-  --bg-hover: #2d2d32;
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-muted: #52525b;
-  --text-active: #818cf8;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.10);
-  --accent: #818cf8;
-  --accent-hover: #a5b4fc;
-  --accent-light: #1e1b4b;
-  --accent-subtle: rgba(129, 140, 248, 0.10);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
-  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.60), 0 8px 24px rgba(0, 0, 0, 0.40);
-}
-
-/* ── Theme: system dark (when no manual override) ── */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+/* ── Dark mode — both manual override and system preference ─────────────────
+   Values are declared inside :root using CSS nesting so both triggers are
+   clearly colocated.  Manual override ([data-theme="dark"]) and system
+   preference (@media) need separate selectors, but the intent is identical. */
+:root {
+  &[data-theme="dark"] {
+    color-scheme: dark;
     --bg-primary: #18181b;
     --bg-secondary: #1f1f23;
     --bg-tertiary: #27272a;
@@ -97,6 +73,30 @@
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
     --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.60), 0 8px 24px rgba(0, 0, 0, 0.40);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg-primary: #18181b;
+      --bg-secondary: #1f1f23;
+      --bg-tertiary: #27272a;
+      --bg-active: #1e1b4b;
+      --bg-hover: #2d2d32;
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #52525b;
+      --text-active: #818cf8;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.10);
+      --accent: #818cf8;
+      --accent-hover: #a5b4fc;
+      --accent-light: #1e1b4b;
+      --accent-subtle: rgba(129, 140, 248, 0.10);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+      --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.60), 0 8px 24px rgba(0, 0, 0, 0.40);
+    }
   }
 }
 
