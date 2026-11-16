@@ -66,41 +66,76 @@
 .navActive,
 .navActive:hover { background: var(--accent-subtle); color: var(--accent); }
 
-/* ── Content ─────────────────────────────────────────── */
+/* ── Content (one long scrolling page) ───────────────── */
 .content {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
+  position: relative;          /* sections measure offsetTop against this */
+  scroll-behavior: auto;
 }
 
 .contentInner {
-  max-width: 640px;
-  padding: 32px 40px 48px;
+  max-width: 860px;
+  padding: 28px 48px 0;
 }
 
-.pageTitle {
-  font-size: 20px;
+.section {
+  padding-bottom: 36px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-of-type { border-bottom: none; }
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--text-primary);
-  margin: 0 0 24px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border);
+  margin: 0 0 14px;
+}
+.sectionHead .sectionTitle { margin-bottom: 6px; }
+
+.sectionDesc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
 }
 
-.sectionBody {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+.subTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  margin: 26px 0 10px;
+}
+
+.endSpacer { height: 32px; }   /* short bottom padding; the nav highlights the last section when scrolled to the end */
+
+/* ── Card ────────────────────────────────────────────── */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
 
 /* ── Setting row ─────────────────────────────────────── */
 .row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
+  padding: 16px 20px;
 }
+.row + .row { border-top: 1px solid var(--border); }
 
 .rowLabel {
   display: flex;
@@ -282,3 +317,99 @@
   border-radius: 3px;
   border: 1px solid var(--border);
 }
+
+.rowError {
+  font-size: 12px;
+  color: #e5484d;
+  margin-top: 2px;
+}
+
+.textBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s, color 0.12s;
+}
+.textBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* ── Keyboard shortcuts ──────────────────────────────── */
+.shortcutControls { display: flex; align-items: center; gap: 8px; }
+
+.keys { display: inline-flex; gap: 4px; align-items: center; }
+
+.kbd {
+  min-width: 24px;
+  padding: 3px 7px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+}
+
+.keyBtn {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+  transition: border-color 0.12s, background 0.12s;
+}
+.keyBtn:hover { border-color: var(--accent); }
+.keyBtnRecording {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.iconBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s, color 0.12s;
+}
+.iconBtn:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+.iconBtn:disabled { opacity: 0.3; cursor: default; }
+
+.fixedGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.fixedItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.fixedItem:nth-child(odd) { border-right: 1px solid var(--border); }
+.fixedItem:nth-last-child(-n + 2) { border-bottom: none; }
+.fixedName { font-size: 13px; color: var(--text-primary); }
+
+.aboutCard { padding: 18px 20px; }

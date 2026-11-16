@@ -46,6 +46,16 @@ export default function App() {
     handleDeletePage,
   } = useNotebooks()
 
+  // Current Quick-open shortcut, shown inside the title-bar search pill.
+  // Re-read whenever Settings closes, since that is where it can be rebound.
+  const [quickOpenKeys, setQuickOpenKeys] = useState('')
+  useEffect(() => {
+    if (settingsOpen) return
+    window.api.getShortcuts().then(list => {
+      setQuickOpenKeys(list?.find(s => s.id === 'quickOpen')?.value || '')
+    }).catch(() => {})
+  }, [settingsOpen])
+
   // Flat page list for Ctrl+P quick open
   const quickPages = useMemo(() => notebooks.flatMap(nb =>
     nb.sections.flatMap(sec => sec.pages.map(p => ({
@@ -124,8 +134,9 @@ export default function App() {
   return (
     <div className={styles.app}>
       <TitleBar
-        title={settingsOpen ? 'Settings' : (activePage?.title || 'Paperfold')}
-        rootDir={rootDir}
+        title={settingsOpen ? 'Settings' : (activePage?.title || 'Search pages…')}
+        shortcut={quickOpenKeys}
+        onOpenSearch={() => setSearchMode('quick')}
         onOpenSettings={toggleSettings}
       />
       {/* Notes stay mounted (just hidden) while Settings is open, so the editor
@@ -187,7 +198,7 @@ export default function App() {
       {/* Search (Ctrl+Shift+F) */}
       {searchMode && (
         <SearchModal
-          mode={searchMode}
+          initialMode={searchMode}
           pages={quickPages}
           onSelect={(p) => { setSettingsOpen(false); openPageByPath(p) }}
           onClose={() => setSearchMode(null)}

@@ -63,16 +63,65 @@
   max-width: 100px;
 }
 
-.pageTitle {
+.center {
   flex: 1;
-  text-align: center;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px;
+}
+
+/* Search-bar style pill; the rest of the title bar stays draggable */
+.searchPill {
+  -webkit-app-region: no-drag;
+  width: 100%;
+  max-width: 440px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.searchPill:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.pillIcon { flex-shrink: 0; }
+
+.pillTitle {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 12px;
+}
+
+.pillKeys {
+  display: inline-flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.pillKbd {
+  padding: 1px 5px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .controls {

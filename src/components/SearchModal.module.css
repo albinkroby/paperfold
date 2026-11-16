@@ -82,3 +82,28 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.modeToggle {
+  display: flex;
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 1px;
+}
+
+.modeBtn {
+  padding: 3px 10px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.modeBtn:hover { color: var(--text-primary); }
+.modeActive,
+.modeActive:hover { background: var(--bg-primary); color: var(--accent); box-shadow: var(--shadow-sm); }

@@ -13,7 +13,8 @@ A local-first, Markdown-native notebook app. All notes save as `.md` files on yo
 - **Inline rename & delete** — right-click any notebook, section, or page
 - **Title editing** — edit the page title and the file is renamed on disk (titles keep their exact case, spaces and non-Latin characters)
 - **Full-text search** — `Ctrl+Shift+F` searches every page in every notebook
-- **Quick open** — `Ctrl+P` jumps to any page by title
+- **Search bar in the title bar** — shows the open page and your Quick-open shortcut; click it (or `Ctrl+P`) to jump to a page by title, then press `Tab` to switch to full-text search
+- **Rebindable shortcuts** — change New page / Save / Quick open / Search in Settings → Keyboard shortcuts
 - **Live folder sync** — edits made in VS Code, Obsidian or Explorer appear without restarting
 - **Tables, strikethrough, underline** — all survive Visual ⇄ Markdown switching
 - **Safe by default** — atomic saves, unsaved edits flushed on quit, deletes go to the Recycle Bin / Trash

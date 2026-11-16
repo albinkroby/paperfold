@@ -1,7 +1,9 @@
-import { Minus, Square, X, Settings } from 'lucide-react'
+import { Minus, Square, X, Settings, Search } from 'lucide-react'
+import { accelParts } from '../utils/accelerator'
 import styles from './TitleBar.module.css'
 
-export default function TitleBar({ title, rootDir, onOpenSettings }) {
+export default function TitleBar({ title, shortcut, onOpenSearch, onOpenSettings }) {
+  const keys = accelParts(shortcut)
   return (
     <div className={styles.titlebar}>
       <div className={styles.drag}>
@@ -11,7 +13,18 @@ export default function TitleBar({ title, rootDir, onOpenSettings }) {
         </span>
       </div>
 
-      <div className={styles.pageTitle}>{title}</div>
+      {/* Search-bar style title: shows the current page, opens quick search on click */}
+      <div className={styles.center}>
+        <button className={styles.searchPill} onClick={onOpenSearch} title="Search pages">
+          <Search size={13} className={styles.pillIcon} />
+          <span className={styles.pillTitle}>{title}</span>
+          {keys.length > 0 && (
+            <span className={styles.pillKeys}>
+              {keys.map((k, i) => <kbd key={i} className={styles.pillKbd}>{k}</kbd>)}
+            </span>
+          )}
+        </button>
+      </div>
 
       <div className={styles.controls}>
         <button

@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Search, FileText } from 'lucide-react'
 import styles from './SearchModal.module.css'
 
 /**
- * mode="content": full-text search across every page (Ctrl+Shift+F, via main process)
- * mode="quick":   instant jump-to-page by title/notebook/section (Ctrl+P, local list)
+ * Two modes, switchable inside the popup (toggle or Tab):
+ *  "quick":   instant jump-to-page by title/notebook/section (local list)
+ *  "content": full-text search across every page (via main process)
+ * `initialMode` is which one opens first (Ctrl+P → quick, Ctrl+Shift+F → content).
  */
-export default function SearchModal({ mode = 'content', pages = [], onSelect, onClose }) {
+export default function SearchModal({ initialMode = 'quick', pages = [], onSelect, onClose }) {
+  const [mode, setMode]       = useState(initialMode)
   const [query, setQuery]     = useState('')
   const [results, setResults] = useState([])
   const [active, setActive]   = useState(0)
@@ -15,27 +18,26 @@ export default function SearchModal({ mode = 'content', pages = [], onSelect, on
 
   useEffect(() => { inputRef.current?.focus() }, [])
 
-  // Debounced search; stale responses are ignored
+  // "Pages" mode is computed synchronously (no flash of an empty list on open)
+  const quickResults = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    return pages
+      .filter(p => !needle || `${p.title} ${p.notebook} ${p.section}`.toLowerCase().includes(needle))
+      .slice(0, 50)
+      .map(p => ({ ...p, snippet: '' }))
+  }, [pages, query])
+
+  // "Full text" mode: debounced main-process search; stale responses are ignored
   useEffect(() => {
+    if (mode !== 'content') return
     const q = query.trim()
-    if (mode === 'quick') {
-      const needle = q.toLowerCase()
-      setResults(
-        pages
-          .filter(p => !needle || `${p.title} ${p.notebook} ${p.section}`.toLowerCase().includes(needle))
-          .slice(0, 50)
-          .map(p => ({ ...p, snippet: '' }))
-      )
-      setActive(0)
-      return
-    }
     if (q.length < 2) { setResults([]); setBusy(false); return }
     let cancelled = false
     setBusy(true)
     const t = setTimeout(async () => {
       try {
         const res = await window.api.search({ query: q })
-        if (!cancelled) { setResults(res); setActive(0) }
+        if (!cancelled) setResults(res)
       } catch {
         if (!cancelled) setResults([])
       } finally {
@@ -43,15 +45,22 @@ export default function SearchModal({ mode = 'content', pages = [], onSelect, on
       }
     }, 200)
     return () => { cancelled = true; clearTimeout(t) }
-  }, [query, mode, pages])
+  }, [query, mode])
+
+  useEffect(() => { setActive(0) }, [query, mode])
+
+  const shown = mode === 'quick' ? quickResults : results
 
   const choose = (r) => { onSelect(r.path); onClose() }
 
+  const toggleMode = () => setMode(m => (m === 'quick' ? 'content' : 'quick'))
+
   const onKeyDown = (e) => {
     if (e.key === 'Escape') onClose()
-    else if (e.key === 'ArrowDown') { e.preventDefault(); setActive(i => Math.min(i + 1, results.length - 1)) }
+    else if (e.key === 'Tab') { e.preventDefault(); toggleMode() }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setActive(i => Math.min(i + 1, shown.length - 1)) }
     else if (e.key === 'ArrowUp')   { e.preventDefault(); setActive(i => Math.max(i - 1, 0)) }
-    else if (e.key === 'Enter' && results[active]) choose(results[active])
+    else if (e.key === 'Enter' && shown[active]) choose(shown[active])
   }
 
   const q = query.trim()
@@ -70,14 +79,29 @@ export default function SearchModal({ mode = 'content', pages = [], onSelect, on
             placeholder={mode === 'quick' ? 'Go to page…' : 'Search all notebooks…'}
             spellCheck={false}
           />
+          {/* onMouseDown preventDefault keeps focus in the input so Esc/arrows still work */}
+          <div className={styles.modeToggle} title="Switch search type (Tab)">
+            <button
+              className={`${styles.modeBtn} ${mode === 'quick' ? styles.modeActive : ''}`}
+              onMouseDown={e => { e.preventDefault(); setMode('quick') }}
+            >
+              Pages
+            </button>
+            <button
+              className={`${styles.modeBtn} ${mode === 'content' ? styles.modeActive : ''}`}
+              onMouseDown={e => { e.preventDefault(); setMode('content') }}
+            >
+              Full text
+            </button>
+          </div>
         </div>
 
         <div className={styles.results}>
           {mode === 'content' && q.length < 2 && <div className={styles.hint}>Type at least 2 characters</div>}
-          {(mode === 'quick' || q.length >= 2) && !busy && results.length === 0 && (
+          {(mode === 'quick' || q.length >= 2) && !busy && shown.length === 0 && (
             <div className={styles.hint}>{q ? `No pages match “${q}”` : 'No pages yet'}</div>
           )}
-          {results.map((r, i) => (
+          {shown.map((r, i) => (
             <button
               key={r.path}
               className={`${styles.result} ${i === active ? styles.active : ''}`}

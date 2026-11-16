@@ -4,6 +4,7 @@ const fs  = require('fs')
 const fsp = fs.promises
 const Store = require('electron-store')
 const { sanitizeName, isInside, uniquePath, makeSnippet } = require('./pathUtils')
+const { SHORTCUT_DEFS, validateBinding, resolveShortcuts } = require('./shortcuts')
 
 const store = new Store()
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
@@ -209,23 +210,30 @@ function createWindow() {
     }, 3000)
   })
 
-  buildMenu(win)
+  buildMenu()
   return win
 }
 
-function buildMenu(win) {
+// Menu actions go to whichever window is focused (or the first one).
+const targetWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0]
+const sendToWindow = (channel) => targetWindow()?.webContents.send(channel)
+
+const getShortcuts = () => resolveShortcuts(store.get('shortcuts', {}))
+
+function buildMenu() {
+  const keys = getShortcuts()
   const template = [
     {
       label: 'File',
       submenu: [
-        { label: 'New Page',              accelerator: 'CmdOrCtrl+N',        click: () => win.webContents.send('menu:new-page') },
-        { label: 'Save',                  accelerator: 'CmdOrCtrl+S',        click: () => win.webContents.send('menu:save') },
+        { label: 'New Page',              accelerator: keys.newPage,         click: () => sendToWindow('menu:new-page') },
+        { label: 'Save',                  accelerator: keys.save,            click: () => sendToWindow('menu:save') },
         { type: 'separator' },
-        { label: 'Quick Open Page…',      accelerator: 'CmdOrCtrl+P',        click: () => win.webContents.send('menu:quick-open') },
-        { label: 'Search Notebooks…',     accelerator: 'CmdOrCtrl+Shift+F',  click: () => win.webContents.send('menu:search') },
-        { label: 'Open Notebook Folder…', click: () => win.webContents.send('menu:open-folder') },
+        { label: 'Quick Open Page…',      accelerator: keys.quickOpen,       click: () => sendToWindow('menu:quick-open') },
+        { label: 'Search Notebooks…',     accelerator: keys.search,          click: () => sendToWindow('menu:search') },
+        { label: 'Open Notebook Folder…', click: () => sendToWindow('menu:open-folder') },
         { type: 'separator' },
-        { label: 'Export as .md',         click: () => win.webContents.send('menu:export-md') },
+        { label: 'Export as .md',         click: () => sendToWindow('menu:export-md') },
         { type: 'separator' },
         { label: 'Quit',                  accelerator: 'CmdOrCtrl+Q',        click: () => app.quit() },
       ],
@@ -247,7 +255,7 @@ function buildMenu(win) {
       submenu: [
         // Dev Tools only visible in development builds
         ...(isDev ? [
-          { label: 'Toggle Dev Tools', accelerator: 'F12', click: () => win.webContents.toggleDevTools() },
+          { label: 'Toggle Dev Tools', accelerator: 'F12', click: () => targetWindow()?.webContents.toggleDevTools() },
           { type: 'separator' },
         ] : []),
         { label: 'Reload',     accelerator: 'CmdOrCtrl+R', role: 'reload' },
@@ -479,6 +487,34 @@ ipcMain.handle('store:set', async (_, key, value) => { assertStoreKey(key); stor
 
 // App version
 ipcMain.handle('app:get-version', async () => app.getVersion())
+
+// Rebindable shortcuts
+const shortcutPayload = () => {
+  const current = getShortcuts()
+  return SHORTCUT_DEFS.map(d => ({ id: d.id, label: d.label, description: d.description, default: d.default, value: current[d.id] }))
+}
+ipcMain.handle('shortcuts:get', async () => shortcutPayload())
+// accelerator === null resets that action to its default
+ipcMain.handle('shortcuts:set', async (_, { id, accelerator }) => {
+  const def = SHORTCUT_DEFS.find(d => d.id === id)
+  if (!def) return { ok: false, error: 'Unknown shortcut.' }
+  const overrides = { ...store.get('shortcuts', {}) }
+  if (accelerator === null) {
+    delete overrides[id]
+  } else {
+    const check = validateBinding(getShortcuts(), id, accelerator)
+    if (!check.ok) return check
+    overrides[id] = check.accelerator
+  }
+  store.set('shortcuts', overrides)
+  buildMenu()
+  return { ok: true, shortcuts: shortcutPayload() }
+})
+ipcMain.handle('shortcuts:reset-all', async () => {
+  store.delete('shortcuts')
+  buildMenu()
+  return { ok: true, shortcuts: shortcutPayload() }
+})
 
 // Restart (used after toggling hardware acceleration). Quitting goes through the
 // normal close path, so unsaved edits are flushed first.

@@ -20,6 +20,11 @@ contextBridge.exposeInMainWorld('api', {
   storeGet:        (key)         => ipcRenderer.invoke('store:get', key),
   storeSet:        (key, value)  => ipcRenderer.invoke('store:set', key, value),
 
+  // Rebindable shortcuts
+  getShortcuts:    ()      => ipcRenderer.invoke('shortcuts:get'),
+  setShortcut:     (id, accelerator) => ipcRenderer.invoke('shortcuts:set', { id, accelerator }),
+  resetShortcuts:  ()      => ipcRenderer.invoke('shortcuts:reset-all'),
+
   // App info
   getVersion:      ()      => ipcRenderer.invoke('app:get-version'),
 

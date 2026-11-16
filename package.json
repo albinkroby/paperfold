@@ -12,7 +12,7 @@
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build && electron-builder",
     "preview": "vite preview",
-    "test": "node --test electron/pathUtils.test.js"
+    "test": "node --test \"electron/*.test.js\""
   },
   "dependencies": {
     "@tiptap/core": "^2.4.0",
