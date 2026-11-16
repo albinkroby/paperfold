@@ -224,6 +224,31 @@
   margin-right: 2px;
 }
 
+.tiptap :global(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 16px;
+  table-layout: fixed;
+  overflow: hidden;
+}
+.tiptap :global(th),
+.tiptap :global(td) {
+  border: 1px solid var(--border-strong);
+  padding: 6px 10px;
+  vertical-align: top;
+  text-align: left;
+  position: relative;
+}
+.tiptap :global(th) { background: var(--bg-secondary); font-weight: 600; }
+.tiptap :global(td > p), .tiptap :global(th > p) { margin: 0; }
+.tiptap :global(.selectedCell)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-subtle);
+  pointer-events: none;
+}
+
 .tiptap :global(pre) {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);

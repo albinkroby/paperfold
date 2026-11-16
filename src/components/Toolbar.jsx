@@ -2,7 +2,8 @@ import {
   Bold, Italic, Underline, Strikethrough,
   Code, Code2, List, ListOrdered, ListChecks,
   Heading1, Heading2, Heading3, Quote,
-  Save, Eye, FileCode, RotateCcw, RotateCw
+  Save, Eye, FileCode, RotateCcw, RotateCw,
+  Table, Rows, Columns, Trash2
 } from 'lucide-react'
 import styles from './Toolbar.module.css'
 
@@ -26,6 +27,13 @@ export default function Toolbar({ editor, mode, onSwitchMode, onSave, onMdInsert
     { type: 'btn', action: () => editor.chain().focus().toggleBlockquote().run(),         icon: <Quote size={15} />,         title: 'Quote',          active: editor.isActive('blockquote') },
     { type: 'btn', action: () => editor.chain().focus().toggleCode().run(),               icon: <Code size={14} />,          title: 'Inline code',    active: editor.isActive('code') },
     { type: 'btn', action: () => editor.chain().focus().toggleCodeBlock().run(),          icon: <Code2 size={14} />,         title: 'Code block',     active: editor.isActive('codeBlock') },
+    { type: 'div' },
+    { type: 'btn', action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(), icon: <Table size={14} />, title: 'Insert table', active: editor.isActive('table') },
+    ...(editor.isActive('table') ? [
+      { type: 'btn', action: () => editor.chain().focus().addRowAfter().run(),            icon: <Rows size={14} />,          title: 'Add row below' },
+      { type: 'btn', action: () => editor.chain().focus().addColumnAfter().run(),         icon: <Columns size={14} />,       title: 'Add column right' },
+      { type: 'btn', action: () => editor.chain().focus().deleteTable().run(),            icon: <Trash2 size={14} />,        title: 'Delete table' },
+    ] : []),
     { type: 'div' },
     { type: 'btn', action: () => editor.chain().focus().undo().run(),                     icon: <RotateCcw size={14} />,     title: 'Undo (Ctrl+Z)' },
     { type: 'btn', action: () => editor.chain().focus().redo().run(),                     icon: <RotateCw size={14} />,      title: 'Redo (Ctrl+Y)' },

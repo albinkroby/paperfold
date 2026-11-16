@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import TitleBar from './components/TitleBar'
 import NotebookSidebar from './components/NotebookSidebar'
 import PageSidebar from './components/PageSidebar'
@@ -6,6 +6,7 @@ import Editor from './components/Editor'
 import ConfirmModal from './components/ConfirmModal'
 import WelcomeModal from './components/WelcomeModal'
 import Settings from './components/Settings'
+import SearchModal from './components/SearchModal'
 import { useNotebooks } from './hooks/useNotebooks'
 import styles from './styles/App.module.css'
 
@@ -14,6 +15,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen]     = useState(true)
   const [defaultMode, setDefaultMode]     = useState('visual')
   const [showWelcome, setShowWelcome]     = useState(false)
+  const [searchMode, setSearchMode]       = useState(null) // null | 'content' | 'quick'
 
   const {
     notebooks,
@@ -22,13 +24,16 @@ export default function App() {
     activePage,
     loading,
     confirmState,
-    setActiveNotebook,
-    setActivePage,
+    saveStatus,
     closeConfirm,
     loadNotebooks,
+    getActiveContent,
+    flushSave,
     savePage,
     handleContentChange,
     handleSelectPage,
+    handleSelectNotebook,
+    openPageByPath,
     handleCreatePage,
     handleCreateNotebook,
     handleCreateSection,
@@ -40,6 +45,13 @@ export default function App() {
     handleDeleteSection,
     handleDeletePage,
   } = useNotebooks()
+
+  // Flat page list for Ctrl+P quick open
+  const quickPages = useMemo(() => notebooks.flatMap(nb =>
+    nb.sections.flatMap(sec => sec.pages.map(p => ({
+      path: p.path, title: p.title, notebook: nb.name, section: sec.name,
+    })))
+  ), [notebooks])
 
   // ── Apply saved settings on startup ────────────────────────────────────────
   useEffect(() => {
@@ -62,7 +74,14 @@ export default function App() {
     })
   }, [])
 
-  const handleCloseWelcome = useCallback(() => {
+  // Settings is a full page; opening it first saves any pending edit.
+  const toggleSettings = useCallback(async () => {
+    if (settingsOpen) { setSettingsOpen(false); return }
+    await flushSave()
+    setSettingsOpen(true)
+  }, [settingsOpen, flushSave])
+
+  const handleCloseWelcome =useCallback(() => {
     setShowWelcome(false)
     // Mark as shown so it never appears again
     window.api.storeSet('welcomeShown', true)
@@ -70,25 +89,29 @@ export default function App() {
 
   // ── Menu event listeners ────────────────────────────────────────────────────
   useEffect(() => {
-    const handleSave       = () => activePage && savePage(activePage)
+    // (File → Save is handled inside <Editor>, which owns the live content.)
     const handleNewPage    = () => handleCreatePage()
-    const handleOpenFolder = async () => { await window.api.chooseFolder(); loadNotebooks() }
+    const handleSearch     = () => setSearchMode('content')
+    const handleQuickOpen  = () => setSearchMode('quick')
+    const handleOpenFolder = async () => { await flushSave(); await window.api.chooseFolder(); loadNotebooks() }
     const handleExportMd   = async () => {
       if (!activePage) return
-      await window.api.exportMd({ title: activePage.title, content: activePage.content || '' })
+      await window.api.exportMd({ title: activePage.title, content: getActiveContent() })
     }
 
-    window.api.onMenu('save',        handleSave)
     window.api.onMenu('new-page',    handleNewPage)
+    window.api.onMenu('search',      handleSearch)
+    window.api.onMenu('quick-open',  handleQuickOpen)
     window.api.onMenu('open-folder', handleOpenFolder)
     window.api.onMenu('export-md',   handleExportMd)
     return () => {
-      window.api.offMenu('save',        handleSave)
       window.api.offMenu('new-page',    handleNewPage)
+      window.api.offMenu('search',      handleSearch)
+      window.api.offMenu('quick-open',  handleQuickOpen)
       window.api.offMenu('open-folder', handleOpenFolder)
       window.api.offMenu('export-md',   handleExportMd)
     }
-  }, [activePage, handleCreatePage, loadNotebooks, savePage])
+  }, [activePage, flushSave, getActiveContent, handleCreatePage, loadNotebooks])
 
   // ── Loading screen ──────────────────────────────────────────────────────────
   if (loading) return (
@@ -101,21 +124,18 @@ export default function App() {
   return (
     <div className={styles.app}>
       <TitleBar
-        title={activePage?.title || 'Paperfold'}
+        title={settingsOpen ? 'Settings' : (activePage?.title || 'Paperfold')}
         rootDir={rootDir}
-        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenSettings={toggleSettings}
       />
-      <div className={styles.body}>
+      {/* Notes stay mounted (just hidden) while Settings is open, so the editor
+          keeps its mode, undo history and scroll position. */}
+      <div className={styles.body} style={settingsOpen ? { display: 'none' } : undefined}>
         <NotebookSidebar
           isOpen={sidebarOpen}
           notebooks={notebooks}
           activeNotebook={activeNotebook}
-          onSelectNotebook={(nb) => {
-            setActiveNotebook(nb)
-            const firstPage = nb.sections[0]?.pages[0] || null
-            if (firstPage) handleSelectPage(firstPage)
-            else setActivePage(null)
-          }}
+          onSelectNotebook={handleSelectNotebook}
           onCreateNotebook={handleCreateNotebook}
           onRenameNotebook={handleRenameNotebook}
           onDeleteNotebook={handleDeleteNotebook}
@@ -136,11 +156,22 @@ export default function App() {
         <Editor
           page={activePage}
           defaultMode={defaultMode}
+          saveStatus={saveStatus}
           onContentChange={handleContentChange}
           onSave={savePage}
           onTitleChange={handleTitleChange}
         />
       </div>
+
+      {/* Settings page */}
+      {settingsOpen && (
+        <Settings
+          rootDir={rootDir}
+          onClose={() => setSettingsOpen(false)}
+          onFolderChange={loadNotebooks}
+          onDefaultModeChange={setDefaultMode}
+        />
+      )}
 
       {/* Custom confirm modal */}
       {confirmState && (
@@ -153,13 +184,13 @@ export default function App() {
         />
       )}
 
-      {/* Settings */}
-      {settingsOpen && (
-        <Settings
-          rootDir={rootDir}
-          onClose={() => setSettingsOpen(false)}
-          onFolderChange={loadNotebooks}
-          onDefaultModeChange={setDefaultMode}
+      {/* Search (Ctrl+Shift+F) */}
+      {searchMode && (
+        <SearchModal
+          mode={searchMode}
+          pages={quickPages}
+          onSelect={(p) => { setSettingsOpen(false); openPageByPath(p) }}
+          onClose={() => setSearchMode(null)}
         />
       )}
 

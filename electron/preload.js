@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('api', {
   deletePage:      (args)  => ipcRenderer.invoke('fs:delete-page', args),
   deleteSection:   (args)  => ipcRenderer.invoke('fs:delete-section', args),
   deleteNotebook:  (args)  => ipcRenderer.invoke('fs:delete-notebook', args),
+  search:          (args)  => ipcRenderer.invoke('fs:search', args),
   chooseFolder:    ()      => ipcRenderer.invoke('fs:choose-folder'),
 
   // Settings store
@@ -26,8 +27,12 @@ contextBridge.exposeInMainWorld('api', {
   minimize:        () => ipcRenderer.send('window:minimize'),
   maximize:        () => ipcRenderer.send('window:maximize'),
   close:           () => ipcRenderer.send('window:close'),
+  // Tell main that unsaved edits were flushed (ok=false keeps the window open)
+  closeReady:      (ok) => ipcRenderer.send('app:close-ready', ok),
+  relaunch:        () => ipcRenderer.send('app:relaunch'),
 
-  // Menu events (main → renderer)
+  // Menu events (main → renderer): save, new-page, search, open-folder,
+  // export-md, before-close, quick-open, fs-changed
   onMenu:          (event, cb) => ipcRenderer.on(`menu:${event}`, cb),
   offMenu:         (event, cb) => ipcRenderer.off(`menu:${event}`, cb),
 })
